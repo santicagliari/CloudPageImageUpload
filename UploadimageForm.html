@@ -1,21 +1,85 @@
+
+%%[
+
+/* nothing needed here for now */
+
+]%%
+
+
+<script runat="server">
+Platform.Load("Core","1.1.5");
+
+var isPost = (Platform.Request.Method == "POST");
+var resultMsg = "";
+var resultOk = false;
+
+if (isPost) {
+  try {
+    var fileName   = Platform.Request.GetFormField("fileName");
+    var mimeType   = Platform.Request.GetFormField("mimeType");
+    var fileBase64 = Platform.Request.GetFormField("fileBase64");
+
+    if (!fileName || !mimeType || !fileBase64) throw "Missing upload fields";
+    if (mimeType != "image/jpeg" && mimeType != "image/png") throw "Only JPG/PNG allowed";
+
+    // Optional: guard against huge payloads (base64 is larger than the binary)
+    if (fileBase64.length > 6000000) throw "File too large";
+
+    var payload = {
+      fileName: fileName,
+      mimeType: mimeType,
+      fileBase64: fileBase64
+    };
+
+    var req = new Script.Util.HttpRequest("https://sfmc-box-upload-9f137793dd2b.herokuapp.com/upload");
+    req.method = "POST";
+    req.contentType = "application/json";
+    req.setHeader("Accept", "application/json");
+    req.setHeader("X-Upload-Secret", "scherokusfmcboxapp");
+    req.postData = Stringify(payload);
+
+    var resp = req.send();
+    var status = resp.statusCode;
+
+    if (status >= 200 && status < 300) {
+      resultOk = true;
+      resultMsg = "Upload successful!";
+      // If you want: parse fileId
+      // var json = Platform.Function.ParseJSON(resp.content);
+      // resultMsg = "Upload successful! FileId: " + json.fileId;
+    } else {
+      resultMsg = "Upload failed. Status " + status + ". " + resp.content;
+    }
+  } catch (e) {
+    resultMsg = "Error: " + String(e);
+  }
+}
+</script>
+
+
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Survey MSR | %%=v(@SurveyName)=%%</title>
+    <title>Upload Images to App Box</title>
     <meta name="description" content="%%=v(@SurveyDescription)=%%" />
     <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css'>
     <link rel="stylesheet" href="https://mc44xj67dmqjm3p127xlr44g8ttq.pub.sfmc-content.com/exannc0jl1m">
-    <!-- Spinner Styling -->
-    <link rel="stylesheet" href="https://mc44xj67dmqjm3p127xlr44g8ttq.pub.sfmc-content.com/u0f3jxvk0y4">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
     <style>
       html {
         min-height:100%;
         position: relative;
+        
         }
+
+      body {
+        font-size: 16px !important;
+
+      }    
+
       #fc-other, #fc-other-radio  {
         display: none;
       }
@@ -160,32 +224,121 @@
           <div class="col-11 col-md-8 white-container " >      
             <label >Upload a Picture of yourself and your family in your house!</label><br>
 
-            <form method="post" action="%%=v(@PostRequest)=%%" >
+              <!-- Show result after POST -->
+              <div id="serverResult" style="margin: 10px 0; font-weight: bold;">
+                <script runat="server">
+                  if (isPost) {
+                    Write(resultOk ? "<span style='color:green;'>" : "<span style='color:red;'>");
+                    Write(String(resultMsg));
+                    Write("</span>");
+                  }
+                </script>
+              </div>
+
+            <form id="uploadForm" method="post" >
                 <div class="mb-3">
                     <label for="exampleInputEmail1" class="form-label">Full Name:</label>
-                    <input type="text"  style="border: 1px solid #00487a; width: 100%;max-width:400px; border-radius:5px;display:block" id="fullname" required>
+                    <input type="text" name="fullname"  style="border: 1px solid #00487a; width: 100%;max-width:400px; border-radius:5px;display:block" id="fullname" required>
                 </div>
 
                   <div class="mb-3">
                     <label for="exampleInputEmail1" class="form-label">Upload Picture:</label><br>
-                    <input id="file" type="file" accept="image/*" required>
+                    <input id="file" type="file" name="file" accept="image/jpeg,image/png" required>
                 </div>
 
 
 
 
-              <input type="hidden" name="SurveyId" value="%%=v(@SurveyId)=%%">
+              <input type="hidden" name="success" value="true">
+                  <!-- Hidden fields populated on submit -->
+              <input type="hidden" name="fileName" id="fileName">
+              <input type="hidden" name="mimeType" id="mimeType">
+              <input type="hidden" name="fileBase64" id="fileBase64">
+
               <div class="text-center">
-                <button type="submit" class=" mt-4 submit submitactive">SUBMIT</button>
+                <button id="submitBtn" type="submit" class=" mt-4 submit submitactive">SUBMIT</button>
               </div>
-              <span id="texterror" class="text-danger">Answer cannot be empty.</span>
+              <span id="msg" style="margin-left:10px;"></span>
           </form>
           </div>
       </div>
-  </div>
+
+      
+  <script>
+    const form = document.getElementById("uploadForm");
+    const btn  = document.getElementById("submitBtn");
+    const msg  = document.getElementById("msg");
+
+    function extFromMime(mime) {
+      if (mime === "image/jpeg") return "jpg"; // or "jpeg" if you prefer
+      if (mime === "image/png") return "png";
+      return null;
+    }
+
+    function stripExt(name) {
+      return (name || "upload").replace(/\.[^/.]+$/, "");
+    }
+
+    function safeBase(name) {
+      return stripExt(name)
+        .replace(/[^\w.\-]+/g, "_")
+        .replace(/^\.+/, "")
+        .slice(0, 80);
+    }
+
+    function toBase64DataUrl(file) {
+      return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result);
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const f = document.getElementById("file").files?.[0];
+      if (!f) return;
+
+      const ext = extFromMime(f.type);
+      if (!ext) {
+        msg.textContent = "Only JPG/JPEG or PNG allowed.";
+        return;
+      }
+
+      // Example: 4MB limit
+      if (f.size > 4 * 1024 * 1024) {
+        msg.textContent = "Max file size is 4MB.";
+        return;
+      }
+
+      btn.disabled = true;
+      msg.textContent = "Uploading...";
+
+      try {
+        const dataUrl = await toBase64DataUrl(f);
+        const base64 = dataUrl.split(",")[1]; // remove "data:image/...;base64,"
+
+        const newName = `${safeBase(f.name)}.${ext}`;
+
+        document.getElementById("fileName").value = newName;
+        document.getElementById("mimeType").value = f.type;
+        document.getElementById("fileBase64").value = base64;
+
+        form.submit(); // now actually POST to same CloudPage
+      } catch (err) {
+        btn.disabled = false;
+        msg.textContent = "Failed to read file.";
+      }
+    });
+  </script>
+
+
+
+
+    </body>
   <!-- Upload Image Form -->
-
-
 </html>
     
 
