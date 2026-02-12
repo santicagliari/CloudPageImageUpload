@@ -263,30 +263,24 @@ if (isPost) {
           </div>
       </div>
 
-      
   <script>
     const form = document.getElementById("uploadForm");
     const btn  = document.getElementById("submitBtn");
     const msg  = document.getElementById("msg");
 
-    function extFromMime(mime) {
-      if (mime === "image/jpeg") return "jpg"; // or "jpeg" if you prefer
-      if (mime === "image/png") return "png";
-      return null;
-    }
-
-    function stripExt(name) {
-      return (name || "upload").replace(/\.[^/.]+$/, "");
-    }
+    const MAX_DIM = 1600;     // adjust (1200–2000 are common)
+    const JPEG_Q  = 0.75;     // 0.6–0.85 typical sweet spot
+    const MAX_OUT_BYTES = 10 * 1024 * 1024; // still enforce
 
     function safeBase(name) {
-      return stripExt(name)
+      return (name || "upload")
+        .replace(/\.[^/.]+$/, "")
         .replace(/[^\w.\-]+/g, "_")
         .replace(/^\.+/, "")
         .slice(0, 80);
     }
 
-    function toBase64DataUrl(file) {
+    function fileToDataURL(file) {
       return new Promise((resolve, reject) => {
         const r = new FileReader();
         r.onload = () => resolve(r.result);
@@ -295,44 +289,91 @@ if (isPost) {
       });
     }
 
+    function loadImage(dataUrl) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = dataUrl;
+      });
+    }
+
+    function canvasToDataURL(canvas, mime, quality) {
+      return canvas.toDataURL(mime, quality); // returns data:mime;base64,...
+    }
+
+    async function compressImageToJpegDataURL(file) {
+      // Read original
+      const dataUrl = await fileToDataURL(file);
+      const img = await loadImage(dataUrl);
+
+      // Compute resize
+      let w = img.naturalWidth || img.width;
+      let h = img.naturalHeight || img.height;
+
+      if (!w || !h) throw new Error("Invalid image dimensions");
+
+      const scale = Math.min(1, MAX_DIM / Math.max(w, h));
+      const nw = Math.max(1, Math.round(w * scale));
+      const nh = Math.max(1, Math.round(h * scale));
+
+      // Draw to canvas
+      const canvas = document.createElement("canvas");
+      canvas.width = nw;
+      canvas.height = nh;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, nw, nh);
+
+      // Always output JPEG for speed/size (unless you truly need PNG transparency)
+      const outDataUrl = canvasToDataURL(canvas, "image/jpeg", JPEG_Q);
+      return outDataUrl;
+    }
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const f = document.getElementById("file").files?.[0];
       if (!f) return;
 
-      const ext = extFromMime(f.type);
-      if (!ext) {
-        msg.textContent = "Only JPG/JPEG or PNG allowed.";
-        return;
-      }
-
-      // Example: 4MB limit
-      if (f.size > 4 * 1024 * 1024) {
-        msg.textContent = "Max file size is 4MB.";
+      // Only allow jpg/png inputs
+      if (!(f.type === "image/jpeg" || f.type === "image/png")) {
+        msg.textContent = "Please upload a JPG/JPEG or PNG.";
         return;
       }
 
       btn.disabled = true;
-      msg.textContent = "Uploading...";
+      msg.textContent = "Optimizing image...";
 
       try {
-        const dataUrl = await toBase64DataUrl(f);
-        const base64 = dataUrl.split(",")[1]; // remove "data:image/...;base64,"
+        const outDataUrl = await compressImageToJpegDataURL(f);
 
-        const newName = `${safeBase(f.name)}.${ext}`;
+        // Extract base64 payload
+        const base64 = outDataUrl.split(",")[1] || "";
+        if (!base64) throw new Error("Failed to encode image");
+
+        // Rough size check: base64 length * 0.75 ≈ bytes
+        const approxBytes = Math.floor(base64.length * 0.75);
+        if (approxBytes > MAX_OUT_BYTES) throw new Error("Output too large");
+
+        // Name it as JPG since we output JPEG
+        const newName = `${safeBase(f.name)}.jpg`;
 
         document.getElementById("fileName").value = newName;
-        document.getElementById("mimeType").value = f.type;
+        document.getElementById("mimeType").value = "image/jpeg";
         document.getElementById("fileBase64").value = base64;
 
-        form.submit(); // now actually POST to same CloudPage
+        msg.textContent = "Uploading...";
+        form.submit(); // triggers SSJS
       } catch (err) {
         btn.disabled = false;
-        msg.textContent = "Failed to read file.";
+        msg.textContent = "Image optimization failed. Try a smaller photo.";
+        console.log(err);
       }
     });
   </script>
+
+
 
 
 
