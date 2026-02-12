@@ -17,9 +17,19 @@ if (isPost) {
   try {
 
     var randomID = Platform.Function.GUID();
-    var fileName   = randomID + Platform.Request.GetFormField("fileName");
+    var fileName   = Platform.Request.GetFormField("fileName");
 
     var mimeType   = Platform.Request.GetFormField("mimeType");
+
+    if (mimeType == "image/jpeg") {
+           var fileName   = randomID + ".jpg"
+      } else if (mimeType == "image/png") {
+          var fileName   = randomID + ".png"
+      } else {
+          throw "Only JPG and PNG allowed";
+      }
+
+
     var fileBase64 = Platform.Request.GetFormField("fileBase64");
 
     if (!fileName || !mimeType || !fileBase64) throw "Missing upload fields";
