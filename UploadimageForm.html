@@ -15,7 +15,10 @@ var resultOk = false;
 
 if (isPost) {
   try {
-    var fileName   = Platform.Request.GetFormField("fileName");
+
+    var randomID = Platform.Function.GUID();
+    var fileName   = randomID + Platform.Request.GetFormField("fileName");
+
     var mimeType   = Platform.Request.GetFormField("mimeType");
     var fileBase64 = Platform.Request.GetFormField("fileBase64");
 
