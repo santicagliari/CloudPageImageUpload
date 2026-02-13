@@ -30,6 +30,24 @@ SET @Submit = RequestParameter('submitted')
     try {
 
       var randomID = Platform.Function.GUID();
+      var contact_id = Platform.Request.GetFormField("contact_id");
+      var lease_id = Platform.Request.GetFormField("lease_id");
+      var story = Platform.Request.GetFormField("story");
+      var fullName = Platform.Request.GetFormField("fullName");
+      var signedDate = Platform.Request.GetFormField("signedDate");
+      var minors = Platform.Request.GetFormField("minors");
+      var fullNameChildConsent = Platform.Request.GetFormField("fullNameChildConsent");
+      var dateChildConsent = Platform.Request.GetFormField("dateChildConsent");
+      var AdditionalEmailAdult1  = Platform.Request.GetFormField("AdditionalEmailAdult1");
+      var DE = 'MSR_Operations_DE_LoveWhereYouLive_FormResults'
+
+      Platform.Function.InsertData(DE,["contact_id","lease_id","fileName", "story", "fullName", "signedDate",
+      "minors", "fullNameChildConsent", "dateChildConsent", "AdditionalEmailAdult1"  
+      ],
+      [contact_id, lease_id, story, fullName, signedDate, minors, fullNameChildConsent, dateChildConsent, AdditionalEmailAdult1]);
+
+
+
       var fileName   = Platform.Request.GetFormField("fileName");
       var mimeType   = Platform.Request.GetFormField("mimeType");
 
@@ -396,24 +414,23 @@ SET @Submit = RequestParameter('submitted')
                     <br><i>(Please skip if no additional adults appear in your photos.) </i>
                     
                     </p>
-                    <p>All adults appearing in the image must complete a content release form. /p>
+                    <p>All adults appearing in the image must complete a content release form. </p>
 
                    <p>Please provide their email addresses so we can send them a form individually: </p>
 
-                   <p><b>Email Address:</b></p>
+                   <p><b>Email Addresses:</b></p>
 
-                   <div class="emailblock">
-                   <input type="email" id="adultemail1" name="adultemail1" placeholder="johndoe@email.com">  
-                   
-                   <span class="fa fa-plus add" onClick="AddLabel(' + i + ')"></span>
-                   <span class="fa fa-minus remove" onClick="RemoveLabel(' + i + ')"></span>
-
+                   <!--<div class="emailblock">
+                    <input type="email" id="adultemail1" name="adultemail1" placeholder="johndoe@email.com">  
+                    <span class="fa fa-plus add" onClick="AddLabel(' + i + ')"></span>
+                    <span class="fa fa-minus remove" onClick="RemoveLabel(' + i + ')"></span>
                    </div>
                    
                    <p style="padding-top:20px;"><b>Important: </b>
                     Submissions are only eligible once release forms are signed for all adults and parental/guardian consent is received for any minors appearing in the images. </p>
-                </div>
+                  </div>-->
 
+                  <textarea  name="adultemail1" id="adultemail1" rows="3" placeholder="Share other adults emails" maxlength="1000" required></textarea>
 
 
               <input type="hidden" name="success" value="true">
