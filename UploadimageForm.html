@@ -45,7 +45,8 @@ SET @Submit = RequestParameter('submitted')
         if (!contactName) {
           var contactName = fullName;
         };
-      
+      var contactName = contactName.replace(/\s+/g, "");
+
  
 
       var fileName   = Platform.Request.GetFormField("fileName");
