@@ -31,6 +31,7 @@ SET @Submit = RequestParameter('submitted')
 
       var randomID = Platform.Function.GUID();
       var contact_id = Platform.Request.GetFormField("contact_id");
+      var contactName = Platform.Function.Lookup('ENT.CRM_Contact','Name','Contact_Id', contact_id).trim();
       var lease_id = Platform.Request.GetFormField("lease_id");
       var story = Platform.Request.GetFormField("story");
       var fullName = Platform.Request.GetFormField("fullName");
@@ -44,14 +45,21 @@ SET @Submit = RequestParameter('submitted')
 
       var fileName   = Platform.Request.GetFormField("fileName");
       var mimeType   = Platform.Request.GetFormField("mimeType");
+      var now = new Date().toLocaleDateString('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric'
+      }).replace(/\//g, '');
+
+      var randomnumber = Math.floor(Math.random() * 900) + 100;
+      var campaignname = 'LoveWhereYouLive'
 
       if (mimeType == "image/jpeg") {
-            var fileName   = randomID + ".jpg"
-        } else if (mimeType == "image/png") {
-            var fileName   = randomID + ".png"
-        } else {
-            throw "Only JPG and PNG allowed";
+            var fileName   = contactName + "_" + campaignname + "_" + now + "_" + randomnumber +  ".jpg"
+        } else (mimeType == "image/png") {
+            var fileName   = contactName + "_" + campaignname + "_" + now + "_" + randomnumber +  ".png"
         }
+        
 
       Platform.Function.InsertData(DE,["contact_id","lease_id","fileName", "story", "fullName", "signedDate",
       "minors", "fullNameChildConsent", "dateChildConsent", "AdditionalEmailAdult1"  
