@@ -2,10 +2,10 @@
 <span style="display:none">
 %%[
 
-SET @SubscriberKey = _SubscriberKey
+SET @Contact_Id = _SubscriberKey
 
-IF EMPTY(@SubscriberKey) THEN
-  SET @SubscriberKey = RequestParameter('Contact_Id')
+IF EMPTY(@Contact_Id) THEN
+  SET @Contact_Id = RequestParameter('Contact_Id')
 ENDIF
 
 SET @Lease_Id = RequestParameter('Lease_Id')
@@ -423,6 +423,8 @@ Submissions are only eligible once release forms are signed for all adults and p
               <input type="hidden" name="fileName" id="fileName">
               <input type="hidden" name="mimeType" id="mimeType">
               <input type="hidden" name="fileBase64" id="fileBase64">
+              <input type="hidden" name="contact_id" value="%%=v(@Contact_Id)=%%">
+              <input type="hidden" name="lease_id" value="%%=v(@Lease_Id)=%%">
 
 
               
