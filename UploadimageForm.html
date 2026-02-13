@@ -1,7 +1,18 @@
 
 %%[
 
-/* nothing needed here for now */
+SET @SubscriberKey = _SubscriberKey
+
+IF EMPTY(@SubscriberKey) THEN
+  SET @SubscriberKey = RequestParameter('Contact_Id')
+ENDIF
+
+SET @Lease_Id = RequestParameter('Lease_Id')
+
+IF EMPTY(@Lease_Id) OR EMPTY(@SubscriberKey) THEN
+  Redirect('https://cloud.sfdc.msrenewal.com/SFMCerror')
+ENDIF
+
 
 ]%%
 
