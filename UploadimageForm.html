@@ -14,7 +14,7 @@ IF EMPTY(@Lease_Id) OR EMPTY(@Contact_Id) THEN
   Redirect('https://cloud.sfdc.msrenewal.com/SFMCerror')
 ENDIF
 
-SET @Submit = RequestParameter('submit')
+SET @Submit = RequestParameter('submitted')
 
 ]%%
 </span>
@@ -342,7 +342,6 @@ SET @Submit = RequestParameter('submit')
 
             <form id="uploadForm" method="post" >
 
-
                   <div class="mb-3">
                     <p><b>Upload Your Photo</b></p>
                     <p>Photos can include you, your family, and/or fellow residents in front of your home. </p>
@@ -412,10 +411,8 @@ SET @Submit = RequestParameter('submit')
                    </div>
                    
                    <p style="padding-top:20px;"><b>Important: </b>
-Submissions are only eligible once release forms are signed for all adults and parental/guardian consent is received for any minors appearing in the images. </p>
+                    Submissions are only eligible once release forms are signed for all adults and parental/guardian consent is received for any minors appearing in the images. </p>
                 </div>
-
-
 
 
 
@@ -426,7 +423,7 @@ Submissions are only eligible once release forms are signed for all adults and p
               <input type="hidden" name="fileBase64" id="fileBase64">
               <input type="hidden" name="contact_id" value="%%=v(@Contact_Id)=%%">
               <input type="hidden" name="lease_id" value="%%=v(@Lease_Id)=%%">
-              <input type="hidden" name="submit" value="true">
+              <input type="hidden" name="submitted" value="true">
 
 
               
