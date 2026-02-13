@@ -5,15 +5,16 @@
 SET @Contact_Id = _SubscriberKey
 
 IF EMPTY(@Contact_Id) THEN
-  SET @Contact_Id = RequestParameter('Contact_Id')
+  SET @Contact_Id = RequestParameter('contact_id')
 ENDIF
 
-SET @Lease_Id = RequestParameter('Lease_Id')
+SET @Lease_Id = RequestParameter('lease_id')
 
 IF EMPTY(@Lease_Id) OR EMPTY(@Contact_Id) THEN
   Redirect('https://cloud.sfdc.msrenewal.com/SFMCerror')
 ENDIF
 
+SET @Submit = RequestParameter('submit')
 
 ]%%
 </span>
@@ -332,7 +333,7 @@ ENDIF
     </div>
     <!-- End of Header -->
 
-
+    %%[ IF @Submit != 'true' THEN ]%%
     <!-- Upload Image Form -->
     <div class="container">
       <div class="row d-flex justify-content-center">
@@ -425,6 +426,7 @@ Submissions are only eligible once release forms are signed for all adults and p
               <input type="hidden" name="fileBase64" id="fileBase64">
               <input type="hidden" name="contact_id" value="%%=v(@Contact_Id)=%%">
               <input type="hidden" name="lease_id" value="%%=v(@Lease_Id)=%%">
+              <input type="hidden" name="submit" value="true">
 
 
               
@@ -436,7 +438,18 @@ Submissions are only eligible once release forms are signed for all adults and p
               <span id="msg" style="margin-left:10px;"></span>
           </form>
 
-                        <!-- Show result after POST -->
+          </div>
+      </div>
+    </div>  
+
+    %%[ ELSE ]%%
+
+        <div class="container">
+      <div class="row d-flex justify-content-center">
+          <div class="col-11 col-md-8 white-container mb-4" >
+            <h3>Thank you for your feedback ❤️</h3>      
+
+          <!-- Show result after POST -->
           <div id="serverResult" style="margin: 10px 0; font-weight: bold;">
             <script runat="server">
               if (isPost) {
@@ -449,6 +462,9 @@ Submissions are only eligible once release forms are signed for all adults and p
 
           </div>
       </div>
+    </div>  
+
+    %%[ ENDIF ]%%
 
   <script>
     const form = document.getElementById("uploadForm");
