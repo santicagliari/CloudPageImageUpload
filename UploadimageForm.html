@@ -10,7 +10,7 @@ ENDIF
 
 SET @Lease_Id = RequestParameter('Lease_Id')
 
-IF EMPTY(@Lease_Id) OR EMPTY(@SubscriberKey) THEN
+IF EMPTY(@Lease_Id) OR EMPTY(@Contact_Id) THEN
   Redirect('https://cloud.sfdc.msrenewal.com/SFMCerror')
 ENDIF
 
