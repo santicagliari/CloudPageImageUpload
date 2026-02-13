@@ -1,4 +1,5 @@
 
+<span style="display:none">
 %%[
 
 SET @SubscriberKey = _SubscriberKey
@@ -15,6 +16,7 @@ ENDIF
 
 
 ]%%
+</span>
 
 <script runat="server">
   Platform.Load("Core","1.1.5");
@@ -87,63 +89,153 @@ ENDIF
     <title>Upload Images to App Box</title>
     <meta name="description" content="%%=v(@SurveyDescription)=%%" />
     <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css'>
-    <link rel="stylesheet" href="https://mc44xj67dmqjm3p127xlr44g8ttq.pub.sfmc-content.com/exannc0jl1m">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
     <style>
-      html {
-        min-height:100%;
-        position: relative;
-        
-        }
-
       body {
-        font-size: 16px !important;
-
-      }    
-
-      #fc-other, #fc-other-radio  {
-        display: none;
+        background-color: #f7f4ec;
+        color: #424141;
+        font-family: 'Arial', sans-serif;
+        font-size: 16px;
       }
 
-      input[type='radio'] {
-        accent-color: #00487a;
-        width: 18px;
-        height: 18px;
-        border-radius: 18px;
+
+      .btn:focus,
+      .btn:active,
+      .textarea,
+      {
+          box-shadow:none !important;
+          outline:0px !important;
         }
 
-      input[type='radio']:hover {
-        accent-color: #146cab;
-        }
-
-      .white-container {
-        margin-bottom: 30px;
-      }
-
-      .alert-success {
+  
+      h3 {
+        font-family: 'Georgia';
+        font-weight: bold;
+        padding: 0px 0px 20px 0px;
+        color: #414242;
         text-align: center;
       }
-
-      .Ratingbutton {
-        padding: 5px 10px;
-        margin-right: 2px;
-        border-radius: 50%;
-        font-weight: bold;
+  
+  
+      .form {
+        background-color: #ffffff;
+      
+      }
+  
+      .logo {
+        width: 200px;
+        display: block;
+        margin: auto;
+        padding: 30px 0px 10px 0px;
+      }
+  
+  
+      .submit {
+      
+        width: 200px;
+        max-width: 100%;
+        border: none;
+        border-radius: 20px;
+        background-color: #00487a;
+        color: #ffffff;
+        padding: 10px 0px;
+        font-size: 18px;
+      
       }
 
-      @media only screen and (min-width: 992px) {
-        .alert-success {
-        text-align: left;
+
+      .form-check-label {
+        display: inline;
       }
 
-      .Ratingbutton {
-      padding: 15px 20px;
-      margin-right: 5px;
+      .form-check {
+        padding-left: 10px;
       }
+
+      .submitactive:hover {
+        background-color: #e6edf1;
+        color: #00487a;
+        transition: 0.3s;
+
       }
+      
+      .displaynone {
+        display: none;
+      }
+      
+      textarea {
+        width:100%;
+        padding:10px;
+        margin: 10px 0px 0px 0px;
+        border-radius: 10px;
+        background-color: #f9f9f9;
+      }
+      
+      textarea:focus {
+            outline: none !important;
+            border: solid 1px #00487a;
+        }
+
+
+      a {
+        color: #00487a;
+        font-weight:bold;
+      }
+
+      a:hover {
+        color: #1AB9FF;
+      }
+
+      .white-container {
+
+        background-color:#fff;
+        padding:25px;
+        border-radius:10px;
+        box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;"
+    }
+
+    input[type="text"], input[type="date"], input[type="email"]  {
+      border: 1px solid #00487a;
+      border-radius: 5px;
+      width: 250px;
+      padding: 3px 10px;
+
+    }
+
+    input[type="text"]:focus, input[type="date"]:focus, input[type="email"]:focus {
+      outline: none !important;
+      border: 1px solid #1AB9FF;
+
+    }
+
+    .fa {
+      color: #00487a;
+      padding: 10px 10px;
+      border: solid 1px #00487a;
+      border-radius: 5px;
+      cursor: pointer;
+
+    }
+
+
+    
+      @media only screen and (min-width: 768px) {
+
+
+      body {
+        font-size: 18px;
+      }
+
+      .white-container {
+        padding:50px;
+    
+    }
+
+      
+      }
+  
     </style>
-
     <!-- Upload Image CSS -->
      <style>
         input[type="file"] {
@@ -173,8 +265,8 @@ ENDIF
         pointer-events: none;
         top: 11px;
         left: 40px;
-        color: #0964b0;
-        content: "Upload File";
+        color: #00487a;
+        content: "Upload Photo";
         }
 
         /* ------- From Step 1 ------- */
@@ -244,20 +336,84 @@ ENDIF
     <!-- Upload Image Form -->
     <div class="container">
       <div class="row d-flex justify-content-center">
-          <div class="col-11 col-md-8 white-container " >      
-            <label >Upload a Picture of yourself and your family in your house!</label><br>
-
+          <div class="col-11 col-md-8 white-container mb-4" >
+            <h3>Show Us the Love ❤️</h3>      
 
             <form id="uploadForm" method="post" >
-                <!--<div class="mb-3">
-                    <label for="exampleInputEmail1" class="form-label">Full Name:</label>
-                    <input type="text" name="fullname"  style="border: 1px solid #00487a; width: 100%;max-width:400px; border-radius:5px;display:block" id="fullname" required>
-                </div>-->
+
 
                   <div class="mb-3">
-                    <label for="exampleInputEmail1" class="form-label">Upload Picture:</label><br>
+                    <p><b>Upload Your Photo</b></p>
+                    <p>Photos can include you, your family, and/or fellow residents in front of your home. </p>
+                    <p><i>Release forms must be signed by all adults, and parental/guardian consent provided for all minors (under the age of 18). </i></p>
+
                     <input id="file" type="file" name="file" accept="image/jpeg,image/png" required>
                 </div>
+
+                <div class="mb-3 pt-4">
+                    <p><b>Tell Us Why You Love Where You Live</b></p>
+                    <p>In a few sentences, share what makes your home and/or neighborhood meaningful to you. Is it the space? The memories? The people next door? The sense of peace at the end of a long day?  </p>
+                    <textarea  name="story" id="story" rows="3" placeholder="Share your story (max length 500 characters)" maxlength="1000" required></textarea>
+                </div>
+
+                <div class="mb-3 pt-4">
+                    <p><b>Content Release Form</b></p>
+                    <p>To complete your entry, please review and acknowledge this release form by entering your full name</p>
+                    <p><b>Note:</b> All adults in the photo must sign a separate content release form, and any minors must have parental or guardian consent.</p>
+                    <p><b>View and Sign the Content Release Form:</b></p>
+
+                   <input type="text" id="FullName" name="fullName" placeholder="John Doe" required>
+                    <div class="pt-3">
+                      <input id="startDate"  type="date" name="signedDate" required />
+                    </div>
+                    
+                </div>
+
+                <div class="mb-3 pt-4">
+                    <p><b>Any minors (under the age of 18)? </b>
+                    <br><i>(Please skip if no minors appear in your images.) </i>
+                    
+                    </p>
+                    <p>Parental or guardian consent is required for all minors appearing in submitted images. If there are any minors (under 18 years old) in the images you shared, and you are their parent or guardian, please list their full names below to provide consent:</p>
+
+                   <textarea  name="minors" id="minors" rows="2" placeholder="Add minors full names" maxlength="1000" ></textarea>
+
+
+                   <p style="padding-top:20px">The undersigned represents and warrants that they are the parent or legal guardian of the minor(s) listed above and have the full legal authority to execute this Release on behalf of the minor(s). </p>
+
+                   <p><b>Resident Full Name:</b></p>
+                   <input type="text" id="FullName" name="fullNameChildConsent" placeholder="John Doe" >
+
+                   <p style="padding-top:20px"><b>Date:</b></p>
+              
+                    <input id="startDate"  type="date" name="dateChildConsent" />             
+                </div>
+
+
+                <!-- Additional Adults Section -->
+                <div class="mb-3 pt-4">
+                    <p><b>Additional Adults?</b>
+                    <br><i>(Please skip if no additional adults appear in your photos.) </i>
+                    
+                    </p>
+                    <p>All adults appearing in the image must complete a content release form. /p>
+
+                   <p>Please provide their email addresses so we can send them a form individually: </p>
+
+                   <p><b>Email Address:</b></p>
+
+                   <div class="emailblock">
+                   <input type="email" id="adultemail1" name="adultemail1" placeholder="johndoe@email.com">  
+                   
+                   <span class="fa fa-plus add" onClick="AddLabel(' + i + ')"></span>
+                   <span class="fa fa-minus remove" onClick="RemoveLabel(' + i + ')"></span>
+
+                   </div>
+                   
+                   <p style="padding-top:20px;"><b>Important: </b>
+Submissions are only eligible once release forms are signed for all adults and parental/guardian consent is received for any minors appearing in the images. </p>
+                </div>
+
 
 
 
@@ -268,8 +424,12 @@ ENDIF
               <input type="hidden" name="mimeType" id="mimeType">
               <input type="hidden" name="fileBase64" id="fileBase64">
 
-              <div class="text-center">
-                <button id="submitBtn" type="submit" class=" mt-4 submit submitactive">SUBMIT</button>
+
+              
+
+              <div class="text-center pt-4">
+                <p>Ready to Share the Love? ❤️</p>
+                <button id="submitBtn" type="submit" class=" submit submitactive">SUBMIT FORM</button>
               </div>
               <span id="msg" style="margin-left:10px;"></span>
           </form>
