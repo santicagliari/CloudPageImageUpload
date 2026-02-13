@@ -55,9 +55,9 @@ SET @Submit = RequestParameter('submitted')
       var campaignname = "LoveWhereYouLive";
 
       if (mimeType == "image/jpeg") {
-            var fileName   = contactName + "_" + campaignname + "_" + now + "_" + randomnumber +  ".jpg"
-        } else (mimeType == "image/png") {
-            var fileName   = contactName + "_" + campaignname + "_" + now + "_" + randomnumber +  ".png"
+            var fileName = contactName + "_" + campaignname + "_" + now + "_" + randomnumber +  ".jpg"
+        } else {
+            var fileName = contactName + "_" + campaignname + "_" + now + "_" + randomnumber +  ".png"
         };
         
 
