@@ -58,7 +58,7 @@ SET @Submit = RequestParameter('submitted')
             var fileName   = contactName + "_" + campaignname + "_" + now + "_" + randomnumber +  ".jpg"
         } else (mimeType == "image/png") {
             var fileName   = contactName + "_" + campaignname + "_" + now + "_" + randomnumber +  ".png"
-        }
+        };
         
 
       Platform.Function.InsertData(DE,["contact_id","lease_id","fileName", "story", "fullName", "signedDate",
