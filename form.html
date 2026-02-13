@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+        <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css'>
+</head>
+<body>
+        <div class="container">
+      <div class="row d-flex justify-content-center">
+          <div class="col-11 col-md-8 white-container mb-4" >
+            <h3>Show Us the Love ❤️</h3>      
+
+            <form id="uploadForm" method="post">
+
+
+            <textarea  name="story" rows="3" placeholder="Share your story (max length 500 characters)" maxlength="1000" required></textarea>
+                </div>
+
+                <div class="mb-3 pt-4">
+                    <p><b>Content Release Form</b></p>
+                    <p>To complete your entry, please review and acknowledge this release form by entering your full name</p>
+                    <p><b>Note:</b> All adults in the photo must sign a separate content release form, and any minors must have parental or guardian consent.</p>
+                    <p><b>View and Sign the Content Release Form:</b></p>
+
+                   <input type="text"  name="fullName" placeholder="John Doe" required/>
+                    <div class="pt-3">
+                      <input  type="date" name="signedDate" required />
+                    </div>
+                    
+                </div>
+
+                <div class="mb-3 pt-4">
+                    <p><b>Any minors (under the age of 18)? </b>
+                    <br><i>(Please skip if no minors appear in your images.) </i>
+                    
+                    </p>
+                    <p>Parental or guardian consent is required for all minors appearing in submitted images. If there are any minors (under 18 years old) in the images you shared, and you are their parent or guardian, please list their full names below to provide consent:</p>
+
+                   <textarea  name="minors" rows="2" placeholder="Add minors full names" maxlength="1000" ></textarea>
+
+
+                   <p style="padding-top:20px">The undersigned represents and warrants that they are the parent or legal guardian of the minor(s) listed above and have the full legal authority to execute this Release on behalf of the minor(s). </p>
+
+                   <p><b>Resident Full Name:</b></p>
+                   <input type="text" name="fullNameChildConsent" placeholder="John Doe" />
+
+                   <p style="padding-top:20px"><b>Date:</b></p>
+              
+                    <input type="date" name="dateChildConsent" />             
+                </div>
+
+
+                <!-- Additional Adults Section -->
+
+
+                  <textarea name="AdditionalEmailAdult1" rows="3" placeholder="Share other adults emails" maxlength="1000"></textarea>
+
+
+                  <!-- Hidden fields populated on submit -->
+              <input type="hidden" name="fileName" id="fileName">
+              <input type="hidden" name="mimeType" id="mimeType">
+              <input type="hidden" name="fileBase64" id="fileBase64">
+
+
+
+              
+
+              <div class="text-center pt-4">
+
+                <button  type="submit" >SUBMIT FORM</button>
+              </div>
+              <span id="msg" style="margin-top:10px;"></span>
+          </form>
+    
+</body>
+</html>
