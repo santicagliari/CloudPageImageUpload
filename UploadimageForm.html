@@ -31,7 +31,6 @@ SET @Submit = RequestParameter('submitted')
 
       var randomID = Platform.Function.GUID();
       var contact_id = Platform.Request.GetFormField("contact_id");
-      var contactName = Platform.Function.Lookup('ENT.CRM_Contact','Name','Contact_Id', contact_id).trim();
       var lease_id = Platform.Request.GetFormField("lease_id");
       var story = Platform.Request.GetFormField("story");
       var fullName = Platform.Request.GetFormField("fullName");
@@ -40,8 +39,14 @@ SET @Submit = RequestParameter('submitted')
       var fullNameChildConsent = Platform.Request.GetFormField("fullNameChildConsent");
       var dateChildConsent = Platform.Request.GetFormField("dateChildConsent");
       var AdditionalEmailAdult1  = Platform.Request.GetFormField("AdditionalEmailAdult1");
-      var DE = 'MSR_Operations_DE_LoveWhereYouLive_FormResults'
+      var DE = 'MSR_Operations_DE_LoveWhereYouLive_FormResults';
 
+      var contactName = Platform.Function.Lookup('ENT.CRM_Contact','Name','Contact_Id', contact_id);
+        if (!contactName) {
+          var contactName = fullName;
+        };
+      
+      var contactName = contactName.trim();
 
       var fileName   = Platform.Request.GetFormField("fileName");
       var mimeType   = Platform.Request.GetFormField("mimeType");
