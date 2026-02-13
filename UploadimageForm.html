@@ -471,22 +471,27 @@ SET @Submit = RequestParameter('submitted')
 
     %%[ ELSE ]%%
 
+      <!-- Show result after POST -->
+      <script runat="server">
+        if (isPost) {
+
+          if(resultOk) {
+            var message = "Thank you for your feedback ❤️";
+          } else {
+           var message = "Oops! Something went wrong. Please try again later"
+  
+         }
+
+         Variable.SetValue("@tymessage", message);
+
+
+        } 
+      </script>
+        
     <div class="container">
       <div class="row d-flex justify-content-center">
           <div class="col-11 col-md-8 white-container mb-4" >
-            <h3>Thank you for your feedback ❤️</h3>      
-
-          <!-- Show result after POST -->
-          <div id="serverResult" style="margin: 10px 0; font-weight: bold;">
-            <script runat="server">
-              if (isPost) {
-                Write(resultOk ? "<span style='color:green;'>" : "<span style='color:red;'>");
-                Write(String(resultMsg));
-                Write("</span>");
-              }
-            </script>
-          </div>
-
+            <h3>%%=v(@tymessage)=%%</h3>      
           </div>
       </div>
     </div>  
