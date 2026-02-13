@@ -119,7 +119,7 @@ SET @Submit = RequestParameter('submitted')
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Upload Images to App Box</title>
-    <meta name="description" content="form used in SFMC" />
+    <meta name="description" content="%%=v(@SurveyDescription)=%%" />
     <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css'>
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
@@ -272,7 +272,6 @@ SET @Submit = RequestParameter('submitted')
      <style>
         input[type="file"] {
         position: relative;
-        width: 100%;
         font-size: 14px;
         }
 
@@ -372,14 +371,15 @@ SET @Submit = RequestParameter('submitted')
           <div class="col-11 col-md-8 white-container mb-4" >
             <h3>Show Us the Love ❤️</h3>      
 
-            <form id="uploadForm" method="post" class="needs-validation" novalidate>
-                <div class="mb-3">
+            <form id="uploadForm" method="post" >
+
+                  <div class="mb-3">
                     <p><b>Upload Your Photo</b></p>
                     <p>Photos can include you, your family, and/or fellow residents in front of your home. </p>
                     <p><i>Release forms must be signed by all adults, and parental/guardian consent provided for all minors (under the age of 18). </i></p>
 
                     <input id="file" type="file" name="file" accept="image/jpeg,image/png" required>
-                </div>               
+                </div>
 
                 <div class="mb-3 pt-4">
                     <p><b>Tell Us Why You Love Where You Live</b></p>
@@ -393,7 +393,7 @@ SET @Submit = RequestParameter('submitted')
                     <p><b>Note:</b> All adults in the photo must sign a separate content release form, and any minors must have parental or guardian consent.</p>
                     <p><b>View and Sign the Content Release Form:</b></p>
 
-                   <input type="text"  name="fullName" placeholder="John Doe" required/>
+                   <input type="text"  name="fullName" placeholder="John Doe" required>
                     <div class="pt-3">
                       <input  type="date" name="signedDate" required />
                     </div>
@@ -413,7 +413,7 @@ SET @Submit = RequestParameter('submitted')
                    <p style="padding-top:20px">The undersigned represents and warrants that they are the parent or legal guardian of the minor(s) listed above and have the full legal authority to execute this Release on behalf of the minor(s). </p>
 
                    <p><b>Resident Full Name:</b></p>
-                   <input type="text" name="fullNameChildConsent" placeholder="John Doe" />
+                   <input type="text" name="fullNameChildConsent" placeholder="John Doe" >
 
                    <p style="padding-top:20px"><b>Date:</b></p>
               
@@ -436,9 +436,9 @@ SET @Submit = RequestParameter('submitted')
                    
                    <p style="padding-top:20px;"><b>Important: </b>
                     Submissions are only eligible once release forms are signed for all adults and parental/guardian consent is received for any minors appearing in the images. </p>
-                </div>
+                  </div>
 
-              <textarea name="AdditionalEmailAdult1" rows="3" placeholder="Share other adults emails" maxlength="1000"></textarea>
+                  <textarea  name="AdditionalEmailAdult1" rows="3" placeholder="Share other adults emails" maxlength="1000"></textarea>
 
 
               <input type="hidden" name="success" value="true">
@@ -493,116 +493,117 @@ SET @Submit = RequestParameter('submitted')
 
     %%[ ENDIF ]%%
 
-<script>
-  const form = document.getElementById("uploadForm");
-  const btn  = document.getElementById("submitBtn");
-  const msg  = document.getElementById("msg");
+  <script>
+    const form = document.getElementById("uploadForm");
+    const btn  = document.getElementById("submitBtn");
+    const msg  = document.getElementById("msg");
 
-  const MAX_DIM = 1600;     // adjust (1200–2000 are common)
-  const JPEG_Q  = 0.75;     // 0.6–0.85 typical sweet spot
-  const MAX_OUT_BYTES = 10 * 1024 * 1024; // still enforce
+    const MAX_DIM = 1600;     // adjust (1200–2000 are common)
+    const JPEG_Q  = 0.75;     // 0.6–0.85 typical sweet spot
+    const MAX_OUT_BYTES = 10 * 1024 * 1024; // still enforce
 
-  function safeBase(name) {
-    return (name || "upload")
-      .replace(/\.[^/.]+$/, "")
-      .replace(/[^\w.\-]+/g, "_")
-      .replace(/^\.+/, "")
-      .slice(0, 80);
-  }
+    function safeBase(name) {
+      return (name || "upload")
+        .replace(/\.[^/.]+$/, "")
+        .replace(/[^\w.\-]+/g, "_")
+        .replace(/^\.+/, "")
+        .slice(0, 80);
+    }
 
-  function fileToDataURL(file) {
-    return new Promise((resolve, reject) => {
-      const r = new FileReader();
-      r.onload = () => resolve(r.result);
-      r.onerror = reject;
-      r.readAsDataURL(file);
+    function fileToDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result);
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+    }
+
+    function loadImage(dataUrl) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = dataUrl;
+      });
+    }
+
+    function canvasToDataURL(canvas, mime, quality) {
+      return canvas.toDataURL(mime, quality); // returns data:mime;base64,...
+    }
+
+    async function compressImageToJpegDataURL(file) {
+      // Read original
+      const dataUrl = await fileToDataURL(file);
+      const img = await loadImage(dataUrl);
+
+      // Compute resize
+      let w = img.naturalWidth || img.width;
+      let h = img.naturalHeight || img.height;
+
+      if (!w || !h) throw new Error("Invalid image dimensions");
+
+      const scale = Math.min(1, MAX_DIM / Math.max(w, h));
+      const nw = Math.max(1, Math.round(w * scale));
+      const nh = Math.max(1, Math.round(h * scale));
+
+      // Draw to canvas
+      const canvas = document.createElement("canvas");
+      canvas.width = nw;
+      canvas.height = nh;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, nw, nh);
+
+      // Always output JPEG for speed/size (unless you truly need PNG transparency)
+      const outDataUrl = canvasToDataURL(canvas, "image/jpeg", JPEG_Q);
+      return outDataUrl;
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+
+
+      const f = document.getElementById("file").files?.[0];
+      if (!f) return;
+
+      // Only allow jpg/png inputs
+      if (!(f.type === "image/jpeg" || f.type === "image/png")) {
+        msg.textContent = "Please upload a JPG/JPEG or PNG.";
+        return;
+      }
+
+      btn.disabled = true;
+      msg.textContent = "Optimizing image...";
+
+      try {
+        const outDataUrl = await compressImageToJpegDataURL(f);
+
+        // Extract base64 payload
+        const base64 = outDataUrl.split(",")[1] || "";
+        if (!base64) throw new Error("Failed to encode image");
+
+        // Rough size check: base64 length * 0.75 ≈ bytes
+        const approxBytes = Math.floor(base64.length * 0.75);
+        if (approxBytes > MAX_OUT_BYTES) throw new Error("Output too large");
+
+        // Name it as JPG since we output JPEG
+        const newName = `${safeBase(f.name)}.jpg`;
+
+        document.getElementById("fileName").value = newName;
+        document.getElementById("mimeType").value = "image/jpeg";
+        document.getElementById("fileBase64").value = base64;
+
+        msg.textContent = "Uploading...";
+        form.submit(); // triggers SSJS
+      } catch (err) {
+        btn.disabled = false;
+        msg.textContent = "Image optimization failed. Try a smaller photo.";
+        console.log(err);
+      }
     });
-  }
-
-  function loadImage(dataUrl) {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => resolve(img);
-      img.onerror = reject;
-      img.src = dataUrl;
-    });
-  }
-
-  function canvasToDataURL(canvas, mime, quality) {
-    return canvas.toDataURL(mime, quality); // returns data:mime;base64,...
-  }
-
-  async function compressImageToJpegDataURL(file) {
-    const dataUrl = await fileToDataURL(file);
-    const img = await loadImage(dataUrl);
-
-    let w = img.naturalWidth || img.width;
-    let h = img.naturalHeight || img.height;
-
-    if (!w || !h) throw new Error("Invalid image dimensions");
-
-    const scale = Math.min(1, MAX_DIM / Math.max(w, h));
-    const nw = Math.max(1, Math.round(w * scale));
-    const nh = Math.max(1, Math.round(h * scale));
-
-    const canvas = document.createElement("canvas");
-    canvas.width = nw;
-    canvas.height = nh;
-
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(img, 0, 0, nw, nh);
-
-    return canvasToDataURL(canvas, "image/jpeg", JPEG_Q);
-  }
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    
-    const invalid = form.querySelector(":invalid");
-    if (invalid) {
-      invalid.focus();
-      invalid.reportValidity();
-      return;
-    }
-
-    const f = document.getElementById("file").files?.[0];
-    if (!f) return;
-
-    // Only allow jpg/png inputs
-    if (!(f.type === "image/jpeg" || f.type === "image/png")) {
-      msg.textContent = "Please upload a JPG/JPEG or PNG.";
-      return;
-    }
-
-    btn.disabled = true;
-    msg.textContent = "Optimizing image...";
-
-    try {
-      const outDataUrl = await compressImageToJpegDataURL(f);
-
-      const base64 = outDataUrl.split(",")[1] || "";
-      if (!base64) throw new Error("Failed to encode image");
-
-      const approxBytes = Math.floor(base64.length * 0.75);
-      if (approxBytes > MAX_OUT_BYTES) throw new Error("Output too large");
-
-      const newName = `${safeBase(f.name)}.jpg`;
-
-      document.getElementById("fileName").value = newName;
-      document.getElementById("mimeType").value = "image/jpeg";
-      document.getElementById("fileBase64").value = base64;
-
-      msg.textContent = "Uploading...";
-      form.requestSubmit(); 
-    } catch (err) {
-      btn.disabled = false;
-      msg.textContent = "Image optimization failed. Try a smaller photo.";
-      console.log(err);
-    }
-  });
-</script>
-
+  </script>
   </body>
   <!-- Upload Image Form -->
 </html>
