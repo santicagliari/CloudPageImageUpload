@@ -16,68 +16,66 @@ ENDIF
 
 ]%%
 
-
 <script runat="server">
-Platform.Load("Core","1.1.5");
+  Platform.Load("Core","1.1.5");
 
-var isPost = (Platform.Request.Method == "POST");
-var resultMsg = "";
-var resultOk = false;
+  var isPost = (Platform.Request.Method == "POST");
+  var resultMsg = "";
+  var resultOk = false;
 
-if (isPost) {
-  try {
+  if (isPost) {
+    try {
 
-    var randomID = Platform.Function.GUID();
-    var fileName   = Platform.Request.GetFormField("fileName");
+      var randomID = Platform.Function.GUID();
+      var fileName   = Platform.Request.GetFormField("fileName");
+      var mimeType   = Platform.Request.GetFormField("mimeType");
 
-    var mimeType   = Platform.Request.GetFormField("mimeType");
+      if (mimeType == "image/jpeg") {
+            var fileName   = randomID + ".jpg"
+        } else if (mimeType == "image/png") {
+            var fileName   = randomID + ".png"
+        } else {
+            throw "Only JPG and PNG allowed";
+        }
 
-    if (mimeType == "image/jpeg") {
-           var fileName   = randomID + ".jpg"
-      } else if (mimeType == "image/png") {
-          var fileName   = randomID + ".png"
+
+      var fileBase64 = Platform.Request.GetFormField("fileBase64");
+
+      if (!fileName || !mimeType || !fileBase64) throw "Missing upload fields";
+      if (mimeType != "image/jpeg" && mimeType != "image/png") throw "Only JPG/PNG allowed";
+
+      // Optional: guard against huge payloads (base64 is larger than the binary)
+      if (fileBase64.length > 6000000) throw "File too large";
+
+      var payload = {
+        fileName: fileName,
+        mimeType: mimeType,
+        fileBase64: fileBase64
+      };
+
+      var req = new Script.Util.HttpRequest("https://sfmc-box-upload-9f137793dd2b.herokuapp.com/upload");
+      req.method = "POST";
+      req.contentType = "application/json";
+      req.setHeader("Accept", "application/json");
+      req.setHeader("X-Upload-Secret", "scherokusfmcboxapp");
+      req.postData = Stringify(payload);
+
+      var resp = req.send();
+      var status = resp.statusCode;
+
+      if (status >= 200 && status < 300) {
+        resultOk = true;
+        resultMsg = "Upload successful!";
+        // If you want: parse fileId
+        // var json = Platform.Function.ParseJSON(resp.content);
+        // resultMsg = "Upload successful! FileId: " + json.fileId;
       } else {
-          throw "Only JPG and PNG allowed";
+        resultMsg = "Upload failed. Status " + status + ". " + resp.content;
       }
-
-
-    var fileBase64 = Platform.Request.GetFormField("fileBase64");
-
-    if (!fileName || !mimeType || !fileBase64) throw "Missing upload fields";
-    if (mimeType != "image/jpeg" && mimeType != "image/png") throw "Only JPG/PNG allowed";
-
-    // Optional: guard against huge payloads (base64 is larger than the binary)
-    if (fileBase64.length > 6000000) throw "File too large";
-
-    var payload = {
-      fileName: fileName,
-      mimeType: mimeType,
-      fileBase64: fileBase64
-    };
-
-    var req = new Script.Util.HttpRequest("https://sfmc-box-upload-9f137793dd2b.herokuapp.com/upload");
-    req.method = "POST";
-    req.contentType = "application/json";
-    req.setHeader("Accept", "application/json");
-    req.setHeader("X-Upload-Secret", "scherokusfmcboxapp");
-    req.postData = Stringify(payload);
-
-    var resp = req.send();
-    var status = resp.statusCode;
-
-    if (status >= 200 && status < 300) {
-      resultOk = true;
-      resultMsg = "Upload successful!";
-      // If you want: parse fileId
-      // var json = Platform.Function.ParseJSON(resp.content);
-      // resultMsg = "Upload successful! FileId: " + json.fileId;
-    } else {
-      resultMsg = "Upload failed. Status " + status + ". " + resp.content;
+    } catch (e) {
+      resultMsg = "Error: " + String(e);
     }
-  } catch (e) {
-    resultMsg = "Error: " + String(e);
   }
-}
 </script>
 
 
@@ -222,7 +220,8 @@ if (isPost) {
       <div class="row">
         <div class="col-12">
           <div class="progress">
-            <div class="progress-bar" role="progressbar" style="width: 100%; background-color: #00487a !important" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+            <div class="progress-bar" role="progressbar" style="width: 100%; background-color: #00487a !important" 
+            aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
           </div>      
        </div>
       </div>
@@ -248,16 +247,6 @@ if (isPost) {
           <div class="col-11 col-md-8 white-container " >      
             <label >Upload a Picture of yourself and your family in your house!</label><br>
 
-              <!-- Show result after POST -->
-              <div id="serverResult" style="margin: 10px 0; font-weight: bold;">
-                <script runat="server">
-                  if (isPost) {
-                    Write(resultOk ? "<span style='color:green;'>" : "<span style='color:red;'>");
-                    Write(String(resultMsg));
-                    Write("</span>");
-                  }
-                </script>
-              </div>
 
             <form id="uploadForm" method="post" >
                 <!--<div class="mb-3">
@@ -284,6 +273,18 @@ if (isPost) {
               </div>
               <span id="msg" style="margin-left:10px;"></span>
           </form>
+
+                        <!-- Show result after POST -->
+          <div id="serverResult" style="margin: 10px 0; font-weight: bold;">
+            <script runat="server">
+              if (isPost) {
+                Write(resultOk ? "<span style='color:green;'>" : "<span style='color:red;'>");
+                Write(String(resultMsg));
+                Write("</span>");
+              }
+            </script>
+          </div>
+
           </div>
       </div>
 
