@@ -56,7 +56,7 @@ SET @Submit = RequestParameter('submitted')
       Platform.Function.InsertData(DE,["contact_id","lease_id","fileName", "story", "fullName", "signedDate",
       "minors", "fullNameChildConsent", "dateChildConsent", "AdditionalEmailAdult1"  
       ],
-      [contact_id, lease_id, story, fullName, signedDate, minors, fullNameChildConsent, dateChildConsent, AdditionalEmailAdult1, fileName]);
+      [contact_id, lease_id, fileName, story, fullName, signedDate, minors, fullNameChildConsent, dateChildConsent, AdditionalEmailAdult1]);
 
 
       var fileBase64 = Platform.Request.GetFormField("fileBase64");
