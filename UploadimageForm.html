@@ -67,19 +67,13 @@ SET @Submit = RequestParameter('submitted')
         };
         
 
-      Platform.Function.InsertData(DE,["contact_id","lease_id","fileName", "story", "fullName", "signedDate",
-      "minors", "fullNameChildConsent", "dateChildConsent", "AdditionalEmailAdult1"  
-      ],
-      [contact_id, lease_id, fileName, story, fullName, signedDate, minors, fullNameChildConsent, dateChildConsent, AdditionalEmailAdult1]);
-
-
       var fileBase64 = Platform.Request.GetFormField("fileBase64");
 
       if (!fileName || !mimeType || !fileBase64) throw "Missing upload fields";
       if (mimeType != "image/jpeg" && mimeType != "image/png") throw "Only JPG/PNG allowed";
 
       // Optional: guard against huge payloads (base64 is larger than the binary)
-      if (fileBase64.length > 6000000) throw "File too large";
+      if (fileBase64.length > 9000000) throw "File too large";
 
       var payload = {
         fileName: fileName,
@@ -100,9 +94,12 @@ SET @Submit = RequestParameter('submitted')
       if (status >= 200 && status < 300) {
         resultOk = true;
         resultMsg = "Upload successful!";
-        // If you want: parse fileId
-        // var json = Platform.Function.ParseJSON(resp.content);
-        // resultMsg = "Upload successful! FileId: " + json.fileId;
+        
+        Platform.Function.InsertData(DE,["contact_id","lease_id","fileName", "story", "fullName", "signedDate",
+      "minors", "fullNameChildConsent", "dateChildConsent", "AdditionalEmailAdult1"  
+      ],
+      [contact_id, lease_id, fileName, story, fullName, signedDate, minors, fullNameChildConsent, dateChildConsent, AdditionalEmailAdult1]);
+        
       } else {
         resultMsg = "Upload failed. Status " + status + ". " + resp.content;
       }
@@ -118,7 +115,7 @@ SET @Submit = RequestParameter('submitted')
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Upload Images to App Box</title>
+    <title>Love Where You Live Submission</title>
     <meta name="description" content="%%=v(@SurveyDescription)=%%" />
     <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css'>
     <!-- Bootstrap Icons -->
@@ -370,29 +367,43 @@ SET @Submit = RequestParameter('submitted')
     <div class="container">
       <div class="row d-flex justify-content-center">
           <div class="col-11 col-md-8 white-container mb-4" >
-            <h3>Show Us the Love ❤️</h3>      
+            <h3>Love Where You Live ❤️</h3>      
 
             <form id="uploadForm" method="post" >
 
                   <div class="mb-3">
-                    <p><b>Upload Your Photo</b></p>
-                    <p>Photos can include you, your family, and/or fellow residents in front of your home. </p>
-                    <p><i>Release forms must be signed by all adults, and parental/guardian consent provided for all minors (under the age of 18). </i></p>
-
+                    <p>
+                      <b>Snap it ... Share it ... Enter to Win!</b>
+                    </p>
+                    <p>
+                     Follow these 3 simple steps for a chance to win one of five $250 Visa gift cards! 
+                    </p>
+                    <ol>
+                      <li>Share a photo of yourself with your home in the background</li>
+                      <li>Tell us why you love where you live</li>
+                      <li>Read and acknowledge the content release form*</li>
+                    </ol>
+                    <p>
+                      <em>*All 3 steps are required for submissions to be considered eligible for our sweepstakes. The content release must be signed by all adults included in images (see "Additional Adults?" below), and consent provided for all minors under the age of 18 (see "Any minors?" below). View our <a href="https://image.sfdc.msrenewal.com/lib/fe3b11717164047e771673/m/1/caf9944a-5d87-49dd-9645-bb0c381a5f72.pdf" target="_blank">terms and conditions</a>.</em>
+                    </p>
+                    <p><b>Step 1. Show Us the Love</b></p>
+                    <p>Drag and drop your image—or click the link to select a file—of you, your family, and/or fellow residents with your home in the background.</p>
                     <input id="file" type="file" name="file" accept="image/jpeg,image/png" required>
                 </div>
 
                 <div class="mb-3 pt-4">
-                    <p><b>Tell Us Why You Love Where You Live</b></p>
-                    <p>In a few sentences, share what makes your home and/or neighborhood meaningful to you. Is it the space? The memories? The people next door? The sense of peace at the end of a long day?  </p>
+                    <p><b>Step 2. Tell Us Why You Love Where You Live</b></p>
+                    <p>In a few sentences, share what makes your home and/or neighborhood meaningful to you.</p>
                     <textarea  name="story" rows="3" placeholder="Share your story (max length 500 characters)" maxlength="1000" required></textarea>
                 </div>
 
                 <div class="mb-3 pt-4">
-                    <p><b>Content Release Form</b></p>
-                    <p>To complete your entry, please review and acknowledge this release form by entering your full name</p>
-                    <p><b>Note:</b> All adults in the photo must sign a separate content release form, and any minors must have parental or guardian consent.</p>
-                    <p><b>View and Sign the Content Release Form:</b></p>
+                    <p><b>Step 3. Share Permission</b></p>
+                    <p>To complete your entry, please review and acknowledge this release form by entering your full name. Any additional adults in images must sign a separate content release form, and minors require parent/guardian consent. To complete your entry, please review and acknowledge this release form by entering your full name. Any additional adults in images must sign a separate content release form, and minors require parent/guardian consent (we'll help you with that).</p>
+                    <p>
+                      <em>I hereby give The Amherst Group LLC and Main Street Renewal LLC and their respective parents, affiliates, subsidiaries, successors, assigns, officers, directors, employees, contractors, agents, licensees, and designees, (collectively, the “Released Parties”), consent to use recordings, photographs or other media capturing my name, likeness, image, voice, and written words that I submit (collectively, ‘Likeness’) in any form, and to use, reproduce, display, distribute, publish, transmit, stream, modify, adapt, and otherwise exploit such Likeness in any and all media now known or later developed, including but not limited to print, digital, social media, video, audio, broadcast, and online platforms, for marketing, promotional, advertising, publicity, or other lawful purposes related my experiences as a resident of a rental home managed by Main Street Renewal LLC (“MSR”).</em></p><p><em>I further acknowledge that I am a current resident of a rental home managed by MSR, and that this Release applies regardless of my residency status. I further understand that no special compensation will be provided to me for use of my image, voice, or written words, and that I may not be informed in advance of the specific use of my image, voice, or written words.</em></p><p><em>This authorization is irrevocable and perpetual, and I waive any right to revoke it. I waive any right to inspect or approve the finished product, any derivative works, or the manner in which my Likeness is used. I release, discharge, and hold harmless the Released Parties from any and all claims, demands, or causes of action, whether now known or later discovered, including but not limited to claims for invasion of privacy, right of publicity, defamation, or misappropriation, arising out of the use, alteration, or exploitation of my Likeness. This Release shall be governed by and construed under the laws of the State of Texas, without regard to conflict-of-law principles. Any dispute shall be resolved exclusively in the state or federal courts located in Travis County, Texas.</em>
+                  </p>
+                    <p><b>Resident Full Name</b></p>
 
                    <input type="text"  name="fullName" placeholder="John Doe" required>
                     <div class="pt-3">
@@ -402,7 +413,7 @@ SET @Submit = RequestParameter('submitted')
                 </div>
 
                 <div class="mb-3 pt-4">
-                    <p><b>Any minors (under the age of 18)? </b>
+                    <p><b>Any minors (under the age of 18)?</b>
                     <br><i>(Please skip if no minors appear in your images.) </i>
                     
                     </p>
@@ -416,8 +427,7 @@ SET @Submit = RequestParameter('submitted')
                    <p><b>Resident Full Name:</b></p>
                    <input type="text" name="fullNameChildConsent" placeholder="John Doe" >
 
-                   <p style="padding-top:20px"><b>Date:</b></p>
-              
+              <div class="pt-3">
                     <input type="date" name="dateChildConsent" />             
                 </div>
 
@@ -428,19 +438,16 @@ SET @Submit = RequestParameter('submitted')
                     <br><i>(Please skip if no additional adults appear in your photos.) </i>
                     
                     </p>
-                    <p>All adults appearing in the image must complete a content release form. </p>
-
-                   <p>Please provide their email addresses so we can send them a form individually: </p>
+                    <p>All adults appearing in the image must complete a content release form. Please provide their email addresses so we can send them a form individually: </p>
 
                    <p><b>Email Addresses:</b></p>
 
                    
-                   <p style="padding-top:20px;"><b>Important: </b>
-                    Submissions are only eligible once release forms are signed for all adults and parental/guardian consent is received for any minors appearing in the images. </p>
                   </div>
 
                   <textarea  name="AdditionalEmailAdult1" rows="3" placeholder="Share other adults emails" maxlength="1000"></textarea>
-
+                   <p style="padding-top:20px;"><b>Important: </b>
+                    Submissions are only deemed complete and eligible once photo and caption are submitted and release forms are signed for all adults and parental/guardian consent is received for any minors appearing in the images.</p>
 
               <input type="hidden" name="success" value="true">
                   <!-- Hidden fields populated on submit -->
@@ -455,10 +462,12 @@ SET @Submit = RequestParameter('submitted')
               
 
               <div class="text-center pt-4">
-                <p>Ready to Share the Love? ❤️</p>
-                <button id="submitBtn" type="submit" class="submit submitactive">SUBMIT FORM</button>
+                <p><b>Ready to Share the Love?</b></p>
+                <button id="submitBtn" type="submit" class="submit submitactive">Submit Form</button><p style="padding-top:10px;">
+                Because loving where you live is worth celebrating.
+                </p>
               </div>
-              <span id="msg" style="margin-top:10px;"></span>
+                  <span id="msg" style="margin-top:10px;"></span></div>
           </form>
 
           </div>
@@ -472,13 +481,17 @@ SET @Submit = RequestParameter('submitted')
         if (isPost) {
 
           if(resultOk) {
-            var message = "Thank you for your feedback ❤️";
+            var message = "Thank you for your submission!";
+            var messagetext = "We can't wait to see and read why you love where you live.\n\nYou have now been entered for a chance to win one of five (5) $250 Visa gift cards.\n\nFor more information about the Love Where You Live Sweepstakes, please see our <a href=\"https://image.sfdc.msrenewal.com/lib/fe3b11717164047e771673/m/1/caf9944a-5d87-49dd-9645-bb0c381a5f72.pdf\">Terms & Conditions</a>.";
+            
           } else {
-           var message = "Oops! Something went wrong. Please try again later"
+           var message = "Oops! Something went wrong. Please try again later";
+
   
          }
 
          Variable.SetValue("@tymessage", message);
+         Variable.SetValue("@tymessageContent", messagetext);
 
 
         } 
@@ -487,7 +500,10 @@ SET @Submit = RequestParameter('submitted')
     <div class="container">
       <div class="row d-flex justify-content-center">
           <div class="col-11 col-md-8 white-container mb-4" >
-            <h3>%%=v(@tymessage)=%%</h3>      
+            <h3>%%=v(@tymessage)=%%</h3> 
+            <p style="text-align:center;padding-top:0px;">
+             %%=v(@tymessageContent)=%%
+            </p>
           </div>
       </div>
     </div>  
