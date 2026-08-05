@@ -60,20 +60,29 @@ SET @Submit = RequestParameter('submitted')
       var randomnumber = Math.floor(Math.random() * 900) + 100;
       var campaignname = "PetsAreFamilyToo";
 
+      var ext;
       if (mimeType == "image/jpeg") {
-            var fileName = contactName + "_" + campaignname + "_" + now + "_" + randomnumber +  ".jpg"
-        } else {
-            var fileName = contactName + "_" + campaignname + "_" + now + "_" + randomnumber +  ".png"
-        };
-        
+        ext = "jpg";
+      } else if (mimeType == "image/png") {
+        ext = "png";
+      } else if (mimeType == "video/mp4") {
+        ext = "mp4";
+      } else if (mimeType == "video/quicktime") {
+        ext = "mov";
+      }
+
+      var fileName = contactName + "_" + campaignname + "_" + now + "_" + randomnumber + "." + ext;
 
       var fileBase64 = Platform.Request.GetFormField("fileBase64");
 
       if (!fileName || !mimeType || !fileBase64) throw "Missing upload fields";
-      if (mimeType != "image/jpeg" && mimeType != "image/png") throw "Only JPG/PNG allowed";
+      if (!ext) throw "Only JPG, PNG, MP4, or MOV allowed";
 
       // Optional: guard against huge payloads (base64 is larger than the binary)
-      if (fileBase64.length > 9000000) throw "File too large";
+      // Images capped ~6.75MB; videos capped ~25MB (base64 inflates size by ~4/3)
+      var isVideo = (mimeType == "video/mp4" || mimeType == "video/quicktime");
+      var maxBase64Length = isVideo ? 35000000 : 9000000;
+      if (fileBase64.length > maxBase64Length) throw "File too large";
 
       var payload = {
         fileName: fileName,
@@ -389,7 +398,7 @@ SET @Submit = RequestParameter('submitted')
                     </p>
                     <p><b>Step 1. Share Their Best Shot 📸 </b></p>
                     <p>Share a photo or video of your pet(s) enjoying their favorite spots around the house. </p>
-                    <input id="file" type="file" name="file" accept="image/jpeg,image/png" required >
+                    <input id="file" type="file" name="file" accept="image/jpeg,image/png,video/*" required >
                 </div>
 
                 <div class="mb-3 pt-4">
@@ -520,6 +529,12 @@ SET @Submit = RequestParameter('submitted')
     const MAX_DIM = 1600;     // adjust (1200–2000 are common)
     const JPEG_Q  = 0.75;     // 0.6–0.85 typical sweet spot
     const MAX_OUT_BYTES = 10 * 1024 * 1024; // still enforce
+    const MAX_VIDEO_BYTES = 25 * 1024 * 1024; // 25 MB cap on video uploads
+
+    const VIDEO_EXT = {
+      "video/mp4": "mp4",
+      "video/quicktime": "mov"
+    };
 
     function safeBase(name) {
       return (name || "upload")
@@ -587,38 +602,58 @@ SET @Submit = RequestParameter('submitted')
       const f = document.getElementById("file").files?.[0];
       if (!f) return;
 
-      // Only allow jpg/png inputs
-      if (!(f.type === "image/jpeg" || f.type === "image/png")) {
-        msg.textContent = "Please upload a JPG/JPEG or PNG.";
+      const isImage = f.type === "image/jpeg" || f.type === "image/png";
+      const isVideo = f.type === "video/mp4" || f.type === "video/quicktime";
+
+      if (!isImage && !isVideo) {
+        msg.textContent = "Please upload a JPG/JPEG, PNG, MP4, or MOV.";
         return;
       }
 
       btn.disabled = true;
-      msg.textContent = "Optimizing image...";
 
       try {
-        const outDataUrl = await compressImageToJpegDataURL(f);
+        let base64, newName, mimeType;
 
-        // Extract base64 payload
-        const base64 = outDataUrl.split(",")[1] || "";
-        if (!base64) throw new Error("Failed to encode image");
+        if (isImage) {
+          msg.textContent = "Optimizing image...";
+          const outDataUrl = await compressImageToJpegDataURL(f);
 
-        // Rough size check: base64 length * 0.75 ≈ bytes
-        const approxBytes = Math.floor(base64.length * 0.75);
-        if (approxBytes > MAX_OUT_BYTES) throw new Error("Output too large");
+          // Extract base64 payload
+          base64 = outDataUrl.split(",")[1] || "";
+          if (!base64) throw new Error("Failed to encode image");
 
-        // Name it as JPG since we output JPEG
-        const newName = `${safeBase(f.name)}.jpg`;
+          // Rough size check: base64 length * 0.75 ≈ bytes
+          const approxBytes = Math.floor(base64.length * 0.75);
+          if (approxBytes > MAX_OUT_BYTES) throw new Error("Output too large");
+
+          // Name it as JPG since we output JPEG
+          newName = `${safeBase(f.name)}.jpg`;
+          mimeType = "image/jpeg";
+        } else {
+          if (f.size > MAX_VIDEO_BYTES) throw new Error("Video too large");
+
+          msg.textContent = "Preparing video...";
+          const dataUrl = await fileToDataURL(f);
+
+          base64 = dataUrl.split(",")[1] || "";
+          if (!base64) throw new Error("Failed to encode video");
+
+          newName = `${safeBase(f.name)}.${VIDEO_EXT[f.type]}`;
+          mimeType = f.type;
+        }
 
         document.getElementById("fileName").value = newName;
-        document.getElementById("mimeType").value = "image/jpeg";
+        document.getElementById("mimeType").value = mimeType;
         document.getElementById("fileBase64").value = base64;
 
         msg.textContent = "Uploading...";
         form.submit(); // triggers SSJS
       } catch (err) {
         btn.disabled = false;
-        msg.textContent = "Image optimization failed. Try a smaller photo.";
+        msg.textContent = isImage
+          ? "Image optimization failed. Try a smaller photo."
+          : "Video upload failed. Try a smaller video (max 25MB).";
         console.log(err);
       }
     });
