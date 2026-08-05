@@ -367,39 +367,40 @@ SET @Submit = RequestParameter('submitted')
     <div class="container">
       <div class="row d-flex justify-content-center">
           <div class="col-11 col-md-8 white-container mb-4" >
-            <h3>Love Where You Live ❤️</h3>      
+            <h3>Pets Are Family Too 🐾</h3>      
 
             <form id="uploadForm" method="post" >
 
                   <div class="mb-3">
                     <p>
-                      <b>Snap it ... Share it ... Enter to Win!</b>
+                      <b>Help us celebrate the pets that make your house a home!</b>
                     </p>
                     <p>
-                     Follow these 3 simple steps for a chance to win one of five $250 Visa gift cards! 
+                     Just 3 simple steps for a chance to win one of five care kits, including the book "Pets Are Family” and other pet-inspired items:   
                     </p>
                     <ol>
-                      <li>Share a photo of yourself with your home in the background</li>
-                      <li>Tell us why you love where you live</li>
-                      <li>Read and acknowledge the content release form*</li>
+                      <li>Share a photo or video of your pet(s) </li>
+                      <li>Share their story </li>
+                      <li>Read and acknowledge the release form* </li>
                     </ol>
+                    <p>In recognition of the impact your pets have on our residents and homes, we will also donate $amount to the [ASPCA –or– American Humane Society] (up to $amount) for every submission in this campaign. </p>
                     <p>
-                      <em>*All 3 steps are required for submissions to be considered eligible for our sweepstakes. The content release must be signed by all adults included in images (see "Additional Adults?" below), and consent provided for all minors under the age of 18 (see "Any minors?" below). View our <a href="https://image.sfdc.msrenewal.com/lib/fe3b11717164047e771673/m/1/caf9944a-5d87-49dd-9645-bb0c381a5f72.pdf" target="_blank">terms and conditions</a>.</em>
+                      <em>*Eligible submissions require your acknowledgment of our content release form. All adults included in images must also sign the form, and consent provided for all minors (under the age of 18). </em>
                     </p>
-                    <p><b>Step 1. Show Us the Love</b></p>
-                    <p>Drag and drop your image—or click the link to select a file—of you, your family, and/or fellow residents with your home in the background.</p>
+                    <p><b>Step 1. Share Their Best Shot 📸 </b></p>
+                    <p>Share a photo or video of your pet(s) enjoying their favorite spots around the house. </p>
                     <input id="file" type="file" name="file" accept="image/jpeg,image/png" required >
                 </div>
 
                 <div class="mb-3 pt-4">
-                    <p><b>Step 2. Tell Us Why You Love Where You Live</b></p>
-                    <p>In a few sentences, share what makes your home and/or neighborhood meaningful to you.</p>
+                    <p><b>Step 2: Tell Us Their Tail 🐕 </b></p>
+                    <p>Share a few sentences about your pet(s), what they mean to you or your family, and why they love calling your home their own.</p>
                     <textarea  name="story" rows="3" placeholder="Share your story (max length 500 characters)" maxlength="1000" required></textarea>
                 </div>
 
                 <div class="mb-3 pt-4">
                     <p><b>Step 3. Share Permission</b></p>
-                    <p>To complete your entry, please review and acknowledge this release form by entering your full name. Any additional adults in images must sign a separate content release form, and minors require parent/guardian consent. To complete your entry, please review and acknowledge this release form by entering your full name. Any additional adults in images must sign a separate content release form, and minors require parent/guardian consent (we'll help you with that).</p>
+                    <p>To complete your entry, please review and acknowledge this release form by entering your full name. Any additional adults in images must sign a separate content release form, and minors require parent/guardian consent. </p>
                     <p>
                       <em>I hereby give The Amherst Group LLC and Main Street Renewal LLC and their respective parents, affiliates, subsidiaries, successors, assigns, officers, directors, employees, contractors, agents, licensees, and designees, (collectively, the “Released Parties”), consent to use recordings, photographs or other media capturing my name, likeness, image, voice, and written words that I submit (collectively, ‘Likeness’) in any form, and to use, reproduce, display, distribute, publish, transmit, stream, modify, adapt, and otherwise exploit such Likeness in any and all media now known or later developed, including but not limited to print, digital, social media, video, audio, broadcast, and online platforms, for marketing, promotional, advertising, publicity, or other lawful purposes related my experiences as a resident of a rental home managed by Main Street Renewal LLC (“MSR”).</em></p><p><em>I further acknowledge that I am a current resident of a rental home managed by MSR, and that this Release applies regardless of my residency status. I further understand that no special compensation will be provided to me for use of my image, voice, or written words, and that I may not be informed in advance of the specific use of my image, voice, or written words.</em></p><p><em>This authorization is irrevocable and perpetual, and I waive any right to revoke it. I waive any right to inspect or approve the finished product, any derivative works, or the manner in which my Likeness is used. I release, discharge, and hold harmless the Released Parties from any and all claims, demands, or causes of action, whether now known or later discovered, including but not limited to claims for invasion of privacy, right of publicity, defamation, or misappropriation, arising out of the use, alteration, or exploitation of my Likeness. This Release shall be governed by and construed under the laws of the State of Texas, without regard to conflict-of-law principles. Any dispute shall be resolved exclusively in the state or federal courts located in Travis County, Texas.</em>
                   </p>
@@ -462,10 +463,11 @@ SET @Submit = RequestParameter('submitted')
               
 
               <div class="text-center pt-4">
-                <p><b>Ready to Share the Love?</b></p>
+                <p><b>Ready to Show Off Your Furry Family? </b></p>
                 <button id="submitBtn" type="submit" class="submit submitactive">Submit Form</button><p style="padding-top:10px;">
-                Because loving where you live is worth celebrating.
+                Because pets are family, too, and every family deserves to be celebrated.
                 </p>
+                <p><em>No purchase necessary. Void where prohibited. Please see Official Rules for eligibility, promotion period, sponsor disclosure, and other information.</em></p>
               </div>
                   <span id="msg" style="margin-top:10px;"></span></div>
           </form>
