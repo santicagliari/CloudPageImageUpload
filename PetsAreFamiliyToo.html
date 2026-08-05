@@ -1,0 +1,634 @@
+
+<span style="display:none">
+%%[
+
+SET @Contact_Id = _SubscriberKey
+
+IF EMPTY(@Contact_Id) THEN
+  SET @Contact_Id = RequestParameter('contact_id')
+ENDIF
+
+SET @Lease_Id = RequestParameter('lease_id')
+
+IF EMPTY(@Lease_Id) OR EMPTY(@Contact_Id) THEN
+  Redirect('https://cloud.sfdc.msrenewal.com/SFMCerror')
+ENDIF
+
+SET @Submit = RequestParameter('submitted')
+
+]%%
+</span>
+
+<script runat="server">
+  Platform.Load("Core","1.1.5");
+
+  var isPost = (Platform.Request.Method == "POST");
+  var resultMsg = "";
+  var resultOk = false;
+
+  if (isPost) {
+    try {
+
+      var randomID = Platform.Function.GUID();
+      var contact_id = Platform.Request.GetFormField("contact_id");
+      var lease_id = Platform.Request.GetFormField("lease_id");
+      var story = Platform.Request.GetFormField("story");
+      var fullName = Platform.Request.GetFormField("fullName");
+      var signedDate = Platform.Request.GetFormField("signedDate");
+      var minors = Platform.Request.GetFormField("minors");
+      var fullNameChildConsent = Platform.Request.GetFormField("fullNameChildConsent");
+      var dateChildConsent = Platform.Request.GetFormField("dateChildConsent");
+      var AdditionalEmailAdult1  = Platform.Request.GetFormField("AdditionalEmailAdult1");
+      var DE = 'MSR_Operations_DE_LoveWhereYouLive_FormResults';
+
+      var contactName = Platform.Function.Lookup('ENT.CRM_Contact','Name','Contact_Id', contact_id);
+        if (!contactName) {
+          var contactName = fullName;
+        };
+      var contactName = contactName.replace(/\s+/g, "");
+
+ 
+
+      var fileName   = Platform.Request.GetFormField("fileName");
+      var mimeType   = Platform.Request.GetFormField("mimeType");
+      var now = new Date().toLocaleDateString('en-US', {
+        month: '2-digit',
+        day: '2-digit',
+        year: 'numeric'
+      }).replace(/\//g, '');
+
+      var randomnumber = Math.floor(Math.random() * 900) + 100;
+      var campaignname = "LoveWhereYouLive";
+
+      if (mimeType == "image/jpeg") {
+            var fileName = contactName + "_" + campaignname + "_" + now + "_" + randomnumber +  ".jpg"
+        } else {
+            var fileName = contactName + "_" + campaignname + "_" + now + "_" + randomnumber +  ".png"
+        };
+        
+
+      var fileBase64 = Platform.Request.GetFormField("fileBase64");
+
+      if (!fileName || !mimeType || !fileBase64) throw "Missing upload fields";
+      if (mimeType != "image/jpeg" && mimeType != "image/png") throw "Only JPG/PNG allowed";
+
+      // Optional: guard against huge payloads (base64 is larger than the binary)
+      if (fileBase64.length > 9000000) throw "File too large";
+
+      var payload = {
+        fileName: fileName,
+        mimeType: mimeType,
+        fileBase64: fileBase64
+      };
+
+      var req = new Script.Util.HttpRequest("https://sfmc-box-upload-9f137793dd2b.herokuapp.com/upload");
+      req.method = "POST";
+      req.contentType = "application/json";
+      req.setHeader("Accept", "application/json");
+      req.setHeader("X-Upload-Secret", "scherokusfmcboxapp");
+      req.postData = Stringify(payload);
+
+      var resp = req.send();
+      var status = resp.statusCode;
+
+      if (status >= 200 && status < 300) {
+        resultOk = true;
+        resultMsg = "Upload successful!";
+        
+        Platform.Function.InsertData(DE,["contact_id","lease_id","fileName", "story", "fullName", "signedDate",
+      "minors", "fullNameChildConsent", "dateChildConsent", "AdditionalEmailAdult1"  
+      ],
+      [contact_id, lease_id, fileName, story, fullName, signedDate, minors, fullNameChildConsent, dateChildConsent, AdditionalEmailAdult1]);
+        
+      } else {
+        resultMsg = "Upload failed. Status " + status + ". " + resp.content;
+      }
+    } catch (e) {
+      resultMsg = "Error: " + String(e);
+    }
+  }
+</script>
+
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Love Where You Live Submission</title>
+    <meta name="description" content="%%=v(@SurveyDescription)=%%" />
+    <link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css'>
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
+    <style>
+      body {
+        background-color: #f7f4ec;
+        color: #424141;
+        font-family: 'Arial', sans-serif;
+        font-size: 16px;
+      }
+
+
+      .btn:focus,
+      .btn:active,
+      .textarea,
+      {
+          box-shadow:none !important;
+          outline:0px !important;
+        }
+
+  
+      h3 {
+        font-family: 'Georgia';
+        font-weight: bold;
+        padding: 0px 0px 20px 0px;
+        color: #414242;
+        text-align: center;
+      }
+  
+  
+      .form {
+        background-color: #ffffff;
+      
+      }
+  
+      .logo {
+        width: 200px;
+        display: block;
+        margin: auto;
+        padding: 30px 0px 10px 0px;
+      }
+  
+  
+      .submit {
+      
+        width: 200px;
+        max-width: 100%;
+        border: none;
+        border-radius: 20px;
+        background-color: #00487a;
+        color: #ffffff;
+        padding: 10px 0px;
+        font-size: 18px;
+      
+      }
+
+
+      .form-check-label {
+        display: inline;
+      }
+
+      .form-check {
+        padding-left: 10px;
+      }
+
+      .submitactive:hover {
+        background-color: #e6edf1;
+        color: #00487a;
+        transition: 0.3s;
+
+      }
+      
+      .displaynone {
+        display: none;
+      }
+      
+      textarea {
+        width:100%;
+        padding:10px;
+        margin: 10px 0px 0px 0px;
+        border-radius: 10px;
+        background-color: #f9f9f9;
+      }
+      
+      textarea:focus {
+            outline: none !important;
+            border: solid 1px #00487a;
+        }
+
+
+      a {
+        color: #00487a;
+        font-weight:bold;
+      }
+
+      a:hover {
+        color: #1AB9FF;
+      }
+
+      .white-container {
+
+        background-color:#fff;
+        padding:25px;
+        border-radius:10px;
+        box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;"
+    }
+
+    input[type="text"], input[type="date"], input[type="email"]  {
+      border: 1px solid #00487a;
+      border-radius: 5px;
+      width: 250px;
+      padding: 3px 10px;
+
+    }
+
+    input[type="text"]:focus, input[type="date"]:focus, input[type="email"]:focus {
+      outline: none !important;
+      border: 1px solid #1AB9FF;
+
+    }
+
+    .fa {
+      color: #00487a;
+      padding: 10px 10px;
+      border: solid 1px #00487a;
+      border-radius: 5px;
+      cursor: pointer;
+
+    }
+
+
+    
+      @media only screen and (min-width: 768px) {
+
+
+      body {
+        font-size: 18px;
+      }
+
+      .white-container {
+        padding:50px;
+    
+    }
+
+      
+      }
+  
+    </style>
+    <!-- Upload Image CSS -->
+     <style>
+        input[type="file"] {
+        position: relative;
+        width: 100%;
+        font-size: 14px;
+        }
+
+        input[type="file"]::file-selector-button {
+        width: 136px;
+        color: transparent;
+        }
+
+        /* Faked label styles and icon */
+        input[type="file"]::before {
+        position: absolute;
+        pointer-events: none;
+        top: 10px;
+        left: 16px;
+        height: 20px;
+        width: 20px;
+        content: "";
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230964B0'%3E%3Cpath d='M18 15v3H6v-3H4v3c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-3h-2zM7 9l1.41 1.41L11 7.83V16h2V7.83l2.59 2.58L17 9l-5-5-5 5z'/%3E%3C/svg%3E");
+        }
+
+        input[type="file"]::after {
+        position: absolute;
+        pointer-events: none;
+        top: 11px;
+        left: 40px;
+        color: #00487a;
+        content: "Upload Photo";
+        }
+
+        /* ------- From Step 1 ------- */
+
+        /* file upload button */
+        input[type="file"]::file-selector-button {
+        border-radius: 4px;
+        padding: 0 16px;
+        height: 40px;
+        cursor: pointer;
+        background-color: white;
+        border: 1px solid rgba(0, 0, 0, 0.16);
+        box-shadow: 0px 1px 0px rgba(0, 0, 0, 0.05);
+        margin-right: 16px;
+        transition: background-color 200ms;
+        }
+
+        /* file upload button hover state */
+        input[type="file"]::file-selector-button:hover {
+        background-color: #f3f4f6;
+        }
+
+        /* file upload button active state */
+        input[type="file"]::file-selector-button:active {
+        background-color: #e5e7eb;
+        }
+
+        /* ------------------------ */
+
+
+     </style>
+
+
+
+    <link rel="icon" href="https://www.msrenewal.com/favicon-32x32.png">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  </head>
+  <body  > 
+
+    <!-- Loading Bar -->
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width: 100%; background-color: #00487a !important" 
+            aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>      
+       </div>
+      </div>
+    </div>
+     <!--End of Loading Bar -->
+
+    <!-- Header -->
+    <div class="container-fluid">
+        <div class="row d-flex justify-content-center">
+          <div class="col-12 text-center p-4 mb-4 ">
+              <img class="logo" src="https://image.sfdc.msrenewal.com/lib/fe3b11717164047e771673/m/1/df563624-015b-4b07-aab0-e4c85e3b3219.png" alt="MSR" >
+          </div>
+          <div>
+          </div>
+        </div>
+    </div>
+    <!-- End of Header -->
+
+    %%[ IF @Submit != 'true' THEN ]%%
+    <!-- Upload Image Form -->
+    <div class="container">
+      <div class="row d-flex justify-content-center">
+          <div class="col-11 col-md-8 white-container mb-4" >
+            <h3>Love Where You Live ❤️</h3>      
+
+            <form id="uploadForm" method="post" >
+
+                  <div class="mb-3">
+                    <p>
+                      <b>Snap it ... Share it ... Enter to Win!</b>
+                    </p>
+                    <p>
+                     Follow these 3 simple steps for a chance to win one of five $250 Visa gift cards! 
+                    </p>
+                    <ol>
+                      <li>Share a photo of yourself with your home in the background</li>
+                      <li>Tell us why you love where you live</li>
+                      <li>Read and acknowledge the content release form*</li>
+                    </ol>
+                    <p>
+                      <em>*All 3 steps are required for submissions to be considered eligible for our sweepstakes. The content release must be signed by all adults included in images (see "Additional Adults?" below), and consent provided for all minors under the age of 18 (see "Any minors?" below). View our <a href="https://image.sfdc.msrenewal.com/lib/fe3b11717164047e771673/m/1/caf9944a-5d87-49dd-9645-bb0c381a5f72.pdf" target="_blank">terms and conditions</a>.</em>
+                    </p>
+                    <p><b>Step 1. Show Us the Love</b></p>
+                    <p>Drag and drop your image—or click the link to select a file—of you, your family, and/or fellow residents with your home in the background.</p>
+                    <input id="file" type="file" name="file" accept="image/jpeg,image/png" required >
+                </div>
+
+                <div class="mb-3 pt-4">
+                    <p><b>Step 2. Tell Us Why You Love Where You Live</b></p>
+                    <p>In a few sentences, share what makes your home and/or neighborhood meaningful to you.</p>
+                    <textarea  name="story" rows="3" placeholder="Share your story (max length 500 characters)" maxlength="1000" required></textarea>
+                </div>
+
+                <div class="mb-3 pt-4">
+                    <p><b>Step 3. Share Permission</b></p>
+                    <p>To complete your entry, please review and acknowledge this release form by entering your full name. Any additional adults in images must sign a separate content release form, and minors require parent/guardian consent. To complete your entry, please review and acknowledge this release form by entering your full name. Any additional adults in images must sign a separate content release form, and minors require parent/guardian consent (we'll help you with that).</p>
+                    <p>
+                      <em>I hereby give The Amherst Group LLC and Main Street Renewal LLC and their respective parents, affiliates, subsidiaries, successors, assigns, officers, directors, employees, contractors, agents, licensees, and designees, (collectively, the “Released Parties”), consent to use recordings, photographs or other media capturing my name, likeness, image, voice, and written words that I submit (collectively, ‘Likeness’) in any form, and to use, reproduce, display, distribute, publish, transmit, stream, modify, adapt, and otherwise exploit such Likeness in any and all media now known or later developed, including but not limited to print, digital, social media, video, audio, broadcast, and online platforms, for marketing, promotional, advertising, publicity, or other lawful purposes related my experiences as a resident of a rental home managed by Main Street Renewal LLC (“MSR”).</em></p><p><em>I further acknowledge that I am a current resident of a rental home managed by MSR, and that this Release applies regardless of my residency status. I further understand that no special compensation will be provided to me for use of my image, voice, or written words, and that I may not be informed in advance of the specific use of my image, voice, or written words.</em></p><p><em>This authorization is irrevocable and perpetual, and I waive any right to revoke it. I waive any right to inspect or approve the finished product, any derivative works, or the manner in which my Likeness is used. I release, discharge, and hold harmless the Released Parties from any and all claims, demands, or causes of action, whether now known or later discovered, including but not limited to claims for invasion of privacy, right of publicity, defamation, or misappropriation, arising out of the use, alteration, or exploitation of my Likeness. This Release shall be governed by and construed under the laws of the State of Texas, without regard to conflict-of-law principles. Any dispute shall be resolved exclusively in the state or federal courts located in Travis County, Texas.</em>
+                  </p>
+                    <p><b>Resident Full Name</b></p>
+
+                   <input type="text"  name="fullName" placeholder="John Doe" required>
+                    <div class="pt-3">
+                      <input  type="date" name="signedDate" required />
+                    </div>
+                    
+                </div>
+
+                <div class="mb-3 pt-4">
+                    <p><b>Any minors (under the age of 18)?</b>
+                    <br><i>(Please skip if no minors appear in your images.) </i>
+                    
+                    </p>
+                    <p>Parental or guardian consent is required for all minors appearing in submitted images. If there are any minors (under 18 years old) in the images you shared, and you are their parent or guardian, please list their full names below to provide consent:</p>
+
+                   <textarea  name="minors" rows="2" placeholder="Add minors full names" maxlength="1000" ></textarea>
+
+
+                   <p style="padding-top:20px">The undersigned represents and warrants that they are the parent or legal guardian of the minor(s) listed above and have the full legal authority to execute this Release on behalf of the minor(s). </p>
+
+                   <p><b>Resident Full Name:</b></p>
+                   <input type="text" name="fullNameChildConsent" placeholder="John Doe" >
+
+              <div class="pt-3">
+                    <input type="date" name="dateChildConsent" />             
+                </div>
+
+
+                <!-- Additional Adults Section -->
+                <div class="mb-3 pt-4">
+                    <p><b>Additional Adults?</b>
+                    <br><i>(Please skip if no additional adults appear in your photos.) </i>
+                    
+                    </p>
+                    <p>All adults appearing in the image must complete a content release form. Please provide their email addresses so we can send them a form individually: </p>
+
+                   <p><b>Email Addresses:</b></p>
+
+                   
+                  </div>
+
+                  <textarea  name="AdditionalEmailAdult1" rows="3" placeholder="Share other adults emails" maxlength="1000"></textarea>
+                   <p style="padding-top:20px;"><b>Important: </b>
+                    Submissions are only deemed complete and eligible once photo and caption are submitted and release forms are signed for all adults and parental/guardian consent is received for any minors appearing in the images.</p>
+
+              <input type="hidden" name="success" value="true">
+                  <!-- Hidden fields populated on submit -->
+              <input type="hidden" name="fileName" id="fileName">
+              <input type="hidden" name="mimeType" id="mimeType">
+              <input type="hidden" name="fileBase64" id="fileBase64">
+              <input type="hidden" name="contact_id" value="%%=v(@Contact_Id)=%%">
+              <input type="hidden" name="lease_id" value="%%=v(@Lease_Id)=%%">
+              <input type="hidden" name="submitted" value="true">
+
+
+              
+
+              <div class="text-center pt-4">
+                <p><b>Ready to Share the Love?</b></p>
+                <button id="submitBtn" type="submit" class="submit submitactive">Submit Form</button><p style="padding-top:10px;">
+                Because loving where you live is worth celebrating.
+                </p>
+              </div>
+                  <span id="msg" style="margin-top:10px;"></span></div>
+          </form>
+
+          </div>
+      </div>
+    </div>  
+
+    %%[ ELSE ]%%
+
+      <!-- Show result after POST -->
+      <script runat="server">
+        if (isPost) {
+
+          if(resultOk) {
+            var message = "Thank you for your submission!";
+            var messagetext = "We can't wait to see and read why you love where you live.\n\nYou have now been entered for a chance to win one of five (5) $250 Visa gift cards.\n\nFor more information about the Love Where You Live Sweepstakes, please see our <a href=\"https://image.sfdc.msrenewal.com/lib/fe3b11717164047e771673/m/1/caf9944a-5d87-49dd-9645-bb0c381a5f72.pdf\">Terms & Conditions</a>.";
+            
+          } else {
+           var message = "Oops! Something went wrong. Please try again later";
+
+  
+         }
+
+         Variable.SetValue("@tymessage", message);
+         Variable.SetValue("@tymessageContent", messagetext);
+
+
+        } 
+      </script>
+        
+    <div class="container">
+      <div class="row d-flex justify-content-center">
+          <div class="col-11 col-md-8 white-container mb-4" >
+            <h3>%%=v(@tymessage)=%%</h3> 
+            <p style="text-align:center;padding-top:0px;">
+             %%=v(@tymessageContent)=%%
+            </p>
+          </div>
+      </div>
+    </div>  
+
+    %%[ ENDIF ]%%
+
+  <script>
+    const form = document.getElementById("uploadForm");
+    const btn  = document.getElementById("submitBtn");
+    const msg  = document.getElementById("msg");
+
+    const MAX_DIM = 1600;     // adjust (1200–2000 are common)
+    const JPEG_Q  = 0.75;     // 0.6–0.85 typical sweet spot
+    const MAX_OUT_BYTES = 10 * 1024 * 1024; // still enforce
+
+    function safeBase(name) {
+      return (name || "upload")
+        .replace(/\.[^/.]+$/, "")
+        .replace(/[^\w.\-]+/g, "_")
+        .replace(/^\.+/, "")
+        .slice(0, 80);
+    }
+
+    function fileToDataURL(file) {
+      return new Promise((resolve, reject) => {
+        const r = new FileReader();
+        r.onload = () => resolve(r.result);
+        r.onerror = reject;
+        r.readAsDataURL(file);
+      });
+    }
+
+    function loadImage(dataUrl) {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = dataUrl;
+      });
+    }
+
+    function canvasToDataURL(canvas, mime, quality) {
+      return canvas.toDataURL(mime, quality); // returns data:mime;base64,...
+    }
+
+    async function compressImageToJpegDataURL(file) {
+      // Read original
+      const dataUrl = await fileToDataURL(file);
+      const img = await loadImage(dataUrl);
+
+      // Compute resize
+      let w = img.naturalWidth || img.width;
+      let h = img.naturalHeight || img.height;
+
+      if (!w || !h) throw new Error("Invalid image dimensions");
+
+      const scale = Math.min(1, MAX_DIM / Math.max(w, h));
+      const nw = Math.max(1, Math.round(w * scale));
+      const nh = Math.max(1, Math.round(h * scale));
+
+      // Draw to canvas
+      const canvas = document.createElement("canvas");
+      canvas.width = nw;
+      canvas.height = nh;
+
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, nw, nh);
+
+      // Always output JPEG for speed/size (unless you truly need PNG transparency)
+      const outDataUrl = canvasToDataURL(canvas, "image/jpeg", JPEG_Q);
+      return outDataUrl;
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+
+
+      const f = document.getElementById("file").files?.[0];
+      if (!f) return;
+
+      // Only allow jpg/png inputs
+      if (!(f.type === "image/jpeg" || f.type === "image/png")) {
+        msg.textContent = "Please upload a JPG/JPEG or PNG.";
+        return;
+      }
+
+      btn.disabled = true;
+      msg.textContent = "Optimizing image...";
+
+      try {
+        const outDataUrl = await compressImageToJpegDataURL(f);
+
+        // Extract base64 payload
+        const base64 = outDataUrl.split(",")[1] || "";
+        if (!base64) throw new Error("Failed to encode image");
+
+        // Rough size check: base64 length * 0.75 ≈ bytes
+        const approxBytes = Math.floor(base64.length * 0.75);
+        if (approxBytes > MAX_OUT_BYTES) throw new Error("Output too large");
+
+        // Name it as JPG since we output JPEG
+        const newName = `${safeBase(f.name)}.jpg`;
+
+        document.getElementById("fileName").value = newName;
+        document.getElementById("mimeType").value = "image/jpeg";
+        document.getElementById("fileBase64").value = base64;
+
+        msg.textContent = "Uploading...";
+        form.submit(); // triggers SSJS
+      } catch (err) {
+        btn.disabled = false;
+        msg.textContent = "Image optimization failed. Try a smaller photo.";
+        console.log(err);
+      }
+    });
+  </script>
+  </body>
+  <!-- Upload Image Form -->
+</html>
+    
+
+
+
+
+
+
+
