@@ -41,77 +41,22 @@ SET @Submit = RequestParameter('submitted')
       var AdditionalEmailAdult1  = Platform.Request.GetFormField("AdditionalEmailAdult1");
       var DE = 'MSR_Operations_DE_PetsAreFamilyToo_FormResults';
 
-      var contactName = Platform.Function.Lookup('ENT.CRM_Contact','Name','Contact_Id', contact_id);
-        if (!contactName) {
-          var contactName = fullName;
-        };
-      var contactName = contactName.replace(/\s+/g, "");
+      // File was already uploaded directly from the browser to the Box upload endpoint
+      // (see the client script below) to avoid Cloud Page POST size limits on larger videos.
+      var fileName = Platform.Request.GetFormField("fileName");
+      var mimeType = Platform.Request.GetFormField("mimeType");
 
- 
+      var allowedMimeTypes = ["image/jpeg", "image/png", "video/mp4", "video/quicktime"];
+      if (!fileName || !mimeType) throw "Missing upload fields";
+      if (allowedMimeTypes.indexOf(mimeType) == -1) throw "Only JPG, PNG, MP4, or MOV allowed";
 
-      var fileName   = Platform.Request.GetFormField("fileName");
-      var mimeType   = Platform.Request.GetFormField("mimeType");
-      var now = new Date().toLocaleDateString('en-US', {
-        month: '2-digit',
-        day: '2-digit',
-        year: 'numeric'
-      }).replace(/\//g, '');
+      resultOk = true;
+      resultMsg = "Upload successful!";
 
-      var randomnumber = Math.floor(Math.random() * 900) + 100;
-      var campaignname = "PetsAreFamilyToo";
-
-      var ext;
-      if (mimeType == "image/jpeg") {
-        ext = "jpg";
-      } else if (mimeType == "image/png") {
-        ext = "png";
-      } else if (mimeType == "video/mp4") {
-        ext = "mp4";
-      } else if (mimeType == "video/quicktime") {
-        ext = "mov";
-      }
-
-      var fileName = contactName + "_" + campaignname + "_" + now + "_" + randomnumber + "." + ext;
-
-      var fileBase64 = Platform.Request.GetFormField("fileBase64");
-
-      if (!fileName || !mimeType || !fileBase64) throw "Missing upload fields";
-      if (!ext) throw "Only JPG, PNG, MP4, or MOV allowed";
-
-      // Optional: guard against huge payloads (base64 is larger than the binary)
-      // Images capped ~6.75MB; videos capped ~25MB (base64 inflates size by ~4/3)
-      var isVideo = (mimeType == "video/mp4" || mimeType == "video/quicktime");
-      var maxBase64Length = isVideo ? 35000000 : 9000000;
-      if (fileBase64.length > maxBase64Length) throw "File too large";
-
-      var payload = {
-        fileName: fileName,
-        mimeType: mimeType,
-        fileBase64: fileBase64
-      };
-
-      var req = new Script.Util.HttpRequest("https://sfmc-box-upload-9f137793dd2b.herokuapp.com/upload");
-      req.method = "POST";
-      req.contentType = "application/json";
-      req.setHeader("Accept", "application/json");
-      req.setHeader("X-Upload-Secret", "scherokusfmcboxapp");
-      req.postData = Stringify(payload);
-
-      var resp = req.send();
-      var status = resp.statusCode;
-
-      if (status >= 200 && status < 300) {
-        resultOk = true;
-        resultMsg = "Upload successful!";
-        
-        Platform.Function.InsertData(DE,["contact_id","lease_id","fileName", "story", "fullName", "signedDate",
-      "minors", "fullNameChildConsent", "dateChildConsent", "AdditionalEmailAdult1"  
+      Platform.Function.InsertData(DE,["contact_id","lease_id","fileName", "story", "fullName", "signedDate",
+      "minors", "fullNameChildConsent", "dateChildConsent", "AdditionalEmailAdult1"
       ],
       [contact_id, lease_id, fileName, story, fullName, signedDate, minors, fullNameChildConsent, dateChildConsent, AdditionalEmailAdult1]);
-        
-      } else {
-        resultMsg = "Upload failed. Status " + status + ". " + resp.content;
-      }
     } catch (e) {
       resultMsg = "Error: " + String(e);
     }
@@ -463,7 +408,6 @@ SET @Submit = RequestParameter('submitted')
                   <!-- Hidden fields populated on submit -->
               <input type="hidden" name="fileName" id="fileName">
               <input type="hidden" name="mimeType" id="mimeType">
-              <input type="hidden" name="fileBase64" id="fileBase64">
               <input type="hidden" name="contact_id" value="%%=v(@Contact_Id)=%%">
               <input type="hidden" name="lease_id" value="%%=v(@Lease_Id)=%%">
               <input type="hidden" name="submitted" value="true">
@@ -536,12 +480,35 @@ SET @Submit = RequestParameter('submitted')
       "video/quicktime": "mov"
     };
 
-    function safeBase(name) {
-      return (name || "upload")
-        .replace(/\.[^/.]+$/, "")
-        .replace(/[^\w.\-]+/g, "_")
-        .replace(/^\.+/, "")
-        .slice(0, 80);
+    // Uploaded directly from the browser to skip the Cloud Page's own POST size limit.
+    // TODO: swap this static secret for a short-lived, single-use token once the flow is confirmed working.
+    const HEROKU_UPLOAD_URL = "https://sfmc-box-upload-9f137793dd2b.herokuapp.com/upload";
+    const UPLOAD_SECRET = "scherokusfmcboxapp";
+
+    function buildFileName(ext) {
+      const contactId = (document.querySelector('[name="contact_id"]')?.value || "unknown").replace(/\s+/g, "");
+      const now = new Date();
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const dd = String(now.getDate()).padStart(2, "0");
+      const yyyy = now.getFullYear();
+      const randomnumber = Math.floor(Math.random() * 900) + 100;
+      return `${contactId}_PetsAreFamilyToo_${mm}${dd}${yyyy}_${randomnumber}.${ext}`;
+    }
+
+    async function uploadToHeroku(fileName, mimeType, base64) {
+      const resp = await fetch(HEROKU_UPLOAD_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Upload-Secret": UPLOAD_SECRET
+        },
+        body: JSON.stringify({ fileName, mimeType, fileBase64: base64 })
+      });
+
+      if (!resp.ok) {
+        const text = await resp.text().catch(() => "");
+        throw new Error(`Upload failed (${resp.status}): ${text}`);
+      }
     }
 
     function fileToDataURL(file) {
@@ -628,7 +595,7 @@ SET @Submit = RequestParameter('submitted')
           if (approxBytes > MAX_OUT_BYTES) throw new Error("Output too large");
 
           // Name it as JPG since we output JPEG
-          newName = `${safeBase(f.name)}.jpg`;
+          newName = buildFileName("jpg");
           mimeType = "image/jpeg";
         } else {
           if (f.size > MAX_VIDEO_BYTES) throw new Error("Video too large");
@@ -639,16 +606,18 @@ SET @Submit = RequestParameter('submitted')
           base64 = dataUrl.split(",")[1] || "";
           if (!base64) throw new Error("Failed to encode video");
 
-          newName = `${safeBase(f.name)}.${VIDEO_EXT[f.type]}`;
+          newName = buildFileName(VIDEO_EXT[f.type]);
           mimeType = f.type;
         }
 
+        msg.textContent = "Uploading...";
+        await uploadToHeroku(newName, mimeType, base64);
+
         document.getElementById("fileName").value = newName;
         document.getElementById("mimeType").value = mimeType;
-        document.getElementById("fileBase64").value = base64;
 
-        msg.textContent = "Uploading...";
-        form.submit(); // triggers SSJS
+        msg.textContent = "Submitting...";
+        form.submit(); // triggers SSJS to record the entry
       } catch (err) {
         btn.disabled = false;
         msg.textContent = isImage
