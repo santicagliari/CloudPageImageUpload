@@ -475,7 +475,7 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
     const MAX_DIM = 1600;     // adjust (1200–2000 are common)
     const JPEG_Q  = 0.75;     // 0.6–0.85 typical sweet spot
     const MAX_OUT_BYTES = 10 * 1024 * 1024; // still enforce
-    const MAX_VIDEO_BYTES = 25 * 1024 * 1024; // 25 MB cap on video uploads
+    const MAX_VIDEO_BYTES = 45 * 1024 * 1024; // 45 MB cap on video uploads (Box's simple upload API caps at 50MB/file)
 
     const VIDEO_EXT = {
       "video/mp4": "mp4",
@@ -626,7 +626,7 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
         btn.disabled = false;
         msg.textContent = isImage
           ? "Image optimization failed. Try a smaller photo."
-          : "Video upload failed. Try a smaller video (max 25MB).";
+          : "Video upload failed. Try a smaller video (max 45MB).";
         console.log(err);
       }
     });
