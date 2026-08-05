@@ -16,6 +16,8 @@ ENDIF
 
 SET @Submit = RequestParameter('submitted')
 
+SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
+
 ]%%
 </span>
 
@@ -409,6 +411,7 @@ SET @Submit = RequestParameter('submitted')
               <input type="hidden" name="fileName" id="fileName">
               <input type="hidden" name="mimeType" id="mimeType">
               <input type="hidden" name="contact_id" value="%%=v(@Contact_Id)=%%">
+              <input type="hidden" id="contactName" value="%%=v(@ContactName)=%%">
               <input type="hidden" name="lease_id" value="%%=v(@Lease_Id)=%%">
               <input type="hidden" name="submitted" value="true">
 
@@ -441,8 +444,7 @@ SET @Submit = RequestParameter('submitted')
             
           } else {
            var message = "Oops! Something went wrong. Please try again later";
-
-  
+           var messagetext = "Debug: " + resultMsg;
          }
 
          Variable.SetValue("@tymessage", message);
@@ -486,13 +488,15 @@ SET @Submit = RequestParameter('submitted')
     const UPLOAD_SECRET = "scherokusfmcboxapp";
 
     function buildFileName(ext) {
-      const contactId = (document.querySelector('[name="contact_id"]')?.value || "unknown").replace(/\s+/g, "");
+      const crmName = document.getElementById("contactName")?.value || "";
+      const typedName = document.querySelector('[name="fullName"]')?.value || "";
+      const contactName = (crmName || typedName || "unknown").replace(/\s+/g, "");
       const now = new Date();
       const mm = String(now.getMonth() + 1).padStart(2, "0");
       const dd = String(now.getDate()).padStart(2, "0");
       const yyyy = now.getFullYear();
       const randomnumber = Math.floor(Math.random() * 900) + 100;
-      return `${contactId}_PetsAreFamilyToo_${mm}${dd}${yyyy}_${randomnumber}.${ext}`;
+      return `${contactName}_PetsAreFamilyToo_${mm}${dd}${yyyy}_${randomnumber}.${ext}`;
     }
 
     async function uploadToHeroku(fileName, mimeType, base64) {
