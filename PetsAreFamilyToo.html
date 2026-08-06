@@ -55,7 +55,7 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
       resultOk = true;
       resultMsg = "Upload successful!";
 
-      if(!minors) {
+      if(!minors || minors == "") {
         var dateChildConsent = ""
       };
 
