@@ -323,13 +323,61 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
 
      </style>
 
+    <!-- Salesforce-style Spinner CSS: https://sfmarketing.cloud/2020/03/28/salesforce-style-spinner-for-use-on-cloudpages/ -->
+    <style>
+      .slds-spinner_container{position:fixed;top:0;right:0;bottom:0;left:0;z-index:9050;background-color:hsla(0,0%,100%,.75);visibility:visible;opacity:1;transition:opacity .2s ease,visibility 0;transition-delay:0s,.3s;display:none}
+      .slds-spinner{position:absolute;top:50%;left:50%;z-index:9051;transform:translate(-50%,-50%) rotate(90deg)}
+      .slds-spinner,.slds-spinner__dot-a,.slds-spinner__dot-b{transform-origin:50% 50%;will-change:transform}
+      .slds-spinner__dot-a,.slds-spinner__dot-b{position:absolute;top:0;left:0;width:100%}
+      .slds-spinner:after,.slds-spinner:before,.slds-spinner__dot-a:after,.slds-spinner__dot-a:before,.slds-spinner__dot-b:after,.slds-spinner__dot-b:before{content:"";position:absolute;background:#00487a;border-radius:50%;animation-duration:1s;animation-iteration-count:infinite;transform:translateZ(0)}
+      .slds-spinner__dot-a{transform:rotate(60deg)}
+      .slds-spinner__dot-b{transform:rotate(120deg)}
+      .slds-spinner:before{animation-delay:-.083s}
+      .slds-spinner__dot-a:before{animation-delay:.083s}
+      .slds-spinner__dot-b:before{animation-delay:.25s}
+      .slds-spinner:after{animation-delay:.41666667s}
+      .slds-spinner__dot-a:after{animation-delay:.583s}
+      .slds-spinner__dot-b:after{animation-delay:.75s}
 
+      @keyframes dotsBounceBefore-medium {
+        0%{transform:translateZ(0)}
+        60%{transform:translateZ(0);animation-timing-function:cubic-bezier(.55,.085,.68,.53)}
+        80%{transform:translate3d(-.5rem,0,0);animation-timing-function:cubic-bezier(0,1.11,.7,1.43)}
+        to{transform:translateZ(0)}
+      }
+
+      @keyframes dotsBounceAfter-medium {
+        0%{transform:translateZ(0)}
+        60%{transform:translateZ(0);animation-timing-function:cubic-bezier(.55,.085,.68,.53)}
+        80%{transform:translate3d(.5rem,0,0);animation-timing-function:cubic-bezier(0,1.11,.7,1.43)}
+        to{transform:translateX(0)}
+      }
+
+      .slds-spinner_large{width:2.75rem}
+
+      .slds-spinner_large .slds-spinner__dot-a:after,.slds-spinner_large .slds-spinner__dot-a:before,.slds-spinner_large .slds-spinner__dot-b:after,.slds-spinner_large .slds-spinner__dot-b:before,.slds-spinner_large.slds-spinner:after,.slds-spinner_large.slds-spinner:before{width:.625rem;height:.625rem}
+
+      .slds-spinner_large .slds-spinner__dot-a:before,.slds-spinner_large .slds-spinner__dot-b:before,.slds-spinner_large.slds-spinner:before{animation-name:dotsBounceBefore-medium;top:-.3125rem;left:-.3125rem}
+
+      .slds-spinner_large .slds-spinner__dot-a:after,.slds-spinner_large .slds-spinner__dot-b:after,.slds-spinner_large.slds-spinner:after{animation-name:dotsBounceAfter-medium;top:-.3125rem;right:-.3125rem}
+
+      .slds-assistive-text{position:absolute;margin:-1px;border:0;padding:0;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);text-transform:none;white-space:nowrap}
+    </style>
 
     <link rel="icon" href="https://www.msrenewal.com/favicon-32x32.png">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   </head>
-  <body  > 
+  <body  >
+
+    <!-- Submission Spinner -->
+    <div class="slds-spinner_container" id="submitSpinner">
+      <div role="status" class="slds-spinner slds-spinner_large">
+        <span class="slds-assistive-text">Submitting...</span>
+        <div class="slds-spinner__dot-a"></div>
+        <div class="slds-spinner__dot-b"></div>
+      </div>
+    </div>
 
     <!-- Loading Bar -->
     <div class="container-fluid">
@@ -693,6 +741,7 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
       }
 
       btn.disabled = true;
+      document.getElementById("submitSpinner").style.display = "block";
 
       try {
         let base64, newName, mimeType;
@@ -740,6 +789,7 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
         form.submit(); // triggers SSJS to record the entry
       } catch (err) {
         btn.disabled = false;
+        document.getElementById("submitSpinner").style.display = "none";
         msg.textContent = isImage
           ? "Image optimization failed. Try a smaller photo."
           : "Video upload failed. Try a smaller video (max 45MB).";
