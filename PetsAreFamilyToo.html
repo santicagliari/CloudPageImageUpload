@@ -39,7 +39,9 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
       var signedDate = Platform.Request.GetFormField("signedDate");
       var minors = Platform.Request.GetFormField("minors");
       var fullNameChildConsent = Platform.Request.GetFormField("fullNameChildConsent");
+      if(minors) {
       var dateChildConsent = Platform.Request.GetFormField("dateChildConsent");
+      }
       var AdditionalEmailAdult1  = Platform.Request.GetFormField("AdditionalEmailAdult1");
       var DE = 'MSR_Operations_DE_PetsAreFamilyToo_FormResults';
 
@@ -55,9 +57,7 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
       resultOk = true;
       resultMsg = "Upload successful!";
 
-      if(!minors || minors == "") {
-        var dateChildConsent = ""
-      };
+
 
       Platform.Function.InsertData(DE,["contact_id","lease_id","fileName", "story", "fullName", "signedDate",
       "minors", "fullNameChildConsent", "dateChildConsent", "AdditionalEmailAdult1"
