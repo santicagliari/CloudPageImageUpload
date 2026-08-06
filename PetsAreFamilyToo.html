@@ -88,10 +88,43 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
       .btn:focus,
       .btn:active,
       .textarea,
-      {
+      .form-check-input:focus {
           box-shadow:none !important;
           outline:0px !important;
         }
+
+      .form-check-input:checked {
+        background-color: #00487a;
+        border-color: #00487a;
+      }
+
+      .additional-adult-email-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      .email-row-btn {
+        border: 1px solid #00487a;
+        color: #00487a;
+        background-color: #fff;
+        border-radius: 5px;
+        padding: 2px 12px;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      .email-row-btn:hover {
+        background-color: #e6edf1;
+      }
+
+      .email-row-btn:disabled {
+        border-color: #ccc;
+        color: #ccc;
+        background-color: #fff;
+        cursor: not-allowed;
+      }
 
   
       h3 {
@@ -132,10 +165,6 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
 
       .form-check-label {
         display: inline;
-      }
-
-      .form-check {
-        padding-left: 10px;
       }
 
       .submitactive:hover {
@@ -252,7 +281,7 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
         top: 11px;
         left: 40px;
         color: #00487a;
-        content: "Upload Photo";
+        content: "Upload File";
         }
 
         /* ------- From Step 1 ------- */
@@ -260,11 +289,11 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
         /* file upload button */
         input[type="file"]::file-selector-button {
         border-radius: 4px;
-        padding: 0 16px;
+        padding: 0 20px;
         height: 40px;
         cursor: pointer;
-        background-color: white;
-        border: 1px solid rgba(0, 0, 0, 0.16);
+        background-color: #eee;
+        border: 1px solid rgba(0, 0, 0, 0.6);
         box-shadow: 0px 1px 0px rgba(0, 0, 0, 0.05);
         margin-right: 16px;
         transition: background-color 200ms;
@@ -357,9 +386,13 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
                 <div class="mb-3 pt-4">
                     <p><b>Step 3. Share Permission</b></p>
                     <p>To complete your entry, please review and acknowledge this release form by entering your full name. Any additional adults in images must sign a separate content release form, and minors require parent/guardian consent. </p>
+
+                    <div style="font-size:12px;border: 1px solid #00487a" class="p-4 pt-3 pb-0 mb-4">
                     <p>
-                      <em>I hereby give The Amherst Group LLC and Main Street Renewal LLC and their respective parents, affiliates, subsidiaries, successors, assigns, officers, directors, employees, contractors, agents, licensees, and designees, (collectively, the “Released Parties”), consent to use recordings, photographs or other media capturing my name, likeness, image, voice, and written words that I submit (collectively, ‘Likeness’) in any form, and to use, reproduce, display, distribute, publish, transmit, stream, modify, adapt, and otherwise exploit such Likeness in any and all media now known or later developed, including but not limited to print, digital, social media, video, audio, broadcast, and online platforms, for marketing, promotional, advertising, publicity, or other lawful purposes related my experiences as a resident of a rental home managed by Main Street Renewal LLC (“MSR”).</em></p><p><em>I further acknowledge that I am a current resident of a rental home managed by MSR, and that this Release applies regardless of my residency status. I further understand that no special compensation will be provided to me for use of my image, voice, or written words, and that I may not be informed in advance of the specific use of my image, voice, or written words.</em></p><p><em>This authorization is irrevocable and perpetual, and I waive any right to revoke it. I waive any right to inspect or approve the finished product, any derivative works, or the manner in which my Likeness is used. I release, discharge, and hold harmless the Released Parties from any and all claims, demands, or causes of action, whether now known or later discovered, including but not limited to claims for invasion of privacy, right of publicity, defamation, or misappropriation, arising out of the use, alteration, or exploitation of my Likeness. This Release shall be governed by and construed under the laws of the State of Texas, without regard to conflict-of-law principles. Any dispute shall be resolved exclusively in the state or federal courts located in Travis County, Texas.</em>
+                      <em>I hereby give The Amherst Group LLC and Main Street Renewal LLC and their respective parents, affiliates, subsidiaries, successors, assigns, officers, directors, employees, contractors, agents, licensees, and designees, (collectively, the “Released Parties”), consent to use recordings, photographs or other media capturing my name, likeness, image, voice, and written words that I submit (collectively, ‘Likeness’) in any form, and to use, reproduce, display, distribute, publish, transmit, stream, modify, adapt, and otherwise exploit such Likeness in any and all media now known or later developed, including but not limited to print, digital, social media, video, audio, broadcast, and online platforms, for marketing, promotional, advertising, publicity, or other lawful purposes related my experiences as a resident of a rental home managed by Main Street Renewal LLC (“MSR”).</em></p><p ><em>I further acknowledge that I am a current resident of a rental home managed by MSR, and that this Release applies regardless of my residency status. I further understand that no special compensation will be provided to me for use of my image, voice, or written words, and that I may not be informed in advance of the specific use of my image, voice, or written words.</em></p><p><em>This authorization is irrevocable and perpetual, and I waive any right to revoke it. I waive any right to inspect or approve the finished product, any derivative works, or the manner in which my Likeness is used. I release, discharge, and hold harmless the Released Parties from any and all claims, demands, or causes of action, whether now known or later discovered, including but not limited to claims for invasion of privacy, right of publicity, defamation, or misappropriation, arising out of the use, alteration, or exploitation of my Likeness. This Release shall be governed by and construed under the laws of the State of Texas, without regard to conflict-of-law principles. Any dispute shall be resolved exclusively in the state or federal courts located in Travis County, Texas.</em>
                   </p>
+                  </div>
+
                     <p><b>Resident Full Name</b></p>
 
                    <input type="text"  name="fullName" placeholder="John Doe" required>
@@ -370,39 +403,55 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
                 </div>
 
                 <div class="mb-3 pt-4">
-                    <p><b>Any minors (under the age of 18)?</b>
-                    <br><i>(Please skip if no minors appear in your images.) </i>
-                    
-                    </p>
-                    <p>Parental or guardian consent is required for all minors appearing in submitted images. If there are any minors (under 18 years old) in the images you shared, and you are their parent or guardian, please list their full names below to provide consent:</p>
+                    <p><b>Any minors (under the age of 18)?</b></p>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" role="switch" id="hasMinorsSwitch">
+                      <label class="form-check-label" for="hasMinorsSwitch">Yes, minors appear in my submission</label>
+                    </div>
 
-                   <textarea  name="minors" rows="2" placeholder="Add minors full names" maxlength="1000" ></textarea>
+                    <div id="minorsDetails" class="displaynone pt-3">
+                        <p>Parental or guardian consent is required for all minors appearing in submitted images. If there are any minors (under 18 years old) in the images you shared, and you are their parent or guardian, please list their full names below to provide consent:</p>
+
+                       <textarea  name="minors" rows="2" placeholder="Add minors full names" maxlength="1000" ></textarea>
 
 
-                   <p style="padding-top:20px">The undersigned represents and warrants that they are the parent or legal guardian of the minor(s) listed above and have the full legal authority to execute this Release on behalf of the minor(s). </p>
+                       <p style="padding-top:20px">The undersigned represents and warrants that they are the parent or legal guardian of the minor(s) listed above and have the full legal authority to execute this Release on behalf of the minor(s). </p>
 
-                   <p><b>Resident Full Name:</b></p>
-                   <input type="text" name="fullNameChildConsent" placeholder="John Doe" >
+                       <p><b>Resident Full Name:</b></p>
+                       <input type="text" name="fullNameChildConsent" placeholder="John Doe" >
 
-              <div class="pt-3">
-                    <input type="date" name="dateChildConsent" />             
+                  <div class="pt-3">
+                        <input type="date" name="dateChildConsent" />
+                    </div>
+                    </div>
                 </div>
-
 
                 <!-- Additional Adults Section -->
                 <div class="mb-3 pt-4">
-                    <p><b>Additional Adults?</b>
-                    <br><i>(Please skip if no additional adults appear in your photos.) </i>
-                    
-                    </p>
-                    <p>All adults appearing in the image must complete a content release form. Please provide their email addresses so we can send them a form individually: </p>
+                    <p><b>Additional Adults?</b></p>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" role="switch" id="hasAdditionalAdultsSwitch">
+                      <label class="form-check-label" for="hasAdditionalAdultsSwitch">Yes, additional adults appear in my submission</label>
+                    </div>
 
-                   <p><b>Email Addresses:</b></p>
+                    <div id="additionalAdultsDetails" class="displaynone pt-3">
+                        <p>All adults appearing in the image must complete a content release form. Please provide their email addresses so we can send them a form individually: </p>
 
-                   
+                       <p><b>Email Addresses:</b></p>
+
+                       <div id="additionalAdultEmailList">
+                         <div class="additional-adult-email-row">
+                           <input type="email" class="additional-adult-email" placeholder="adult@example.com">
+                           <button type="button" class="email-row-btn remove-email-btn">−</button>
+                         </div>
+                       </div>
+
+                       <button type="button" id="addEmailBtn" class="email-row-btn mt-2">+ Add another email</button>
+
+                       <input type="hidden" name="AdditionalEmailAdult1" id="additionalEmailAdult1Hidden">
+                    </div>
                   </div>
 
-                  <textarea  name="AdditionalEmailAdult1" rows="3" placeholder="Share other adults emails" maxlength="1000"></textarea>
                    <p style="padding-top:20px;"><b>Important: </b>
                     Submissions are only deemed complete and eligible once photo and caption are submitted and release forms are signed for all adults and parental/guardian consent is received for any minors appearing in the images.</p>
 
@@ -471,6 +520,59 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
     const form = document.getElementById("uploadForm");
     const btn  = document.getElementById("submitBtn");
     const msg  = document.getElementById("msg");
+
+    function toggleDetailsOnSwitch(switchId, detailsId, requiredFieldNames = []) {
+      const toggle = document.getElementById(switchId);
+      const details = document.getElementById(detailsId);
+      const requiredFields = requiredFieldNames.map((name) => details.querySelector(`[name="${name}"]`));
+
+      toggle.addEventListener("change", () => {
+        details.classList.toggle("displaynone", !toggle.checked);
+        requiredFields.forEach((field) => { field.required = toggle.checked; });
+      });
+    }
+
+    toggleDetailsOnSwitch("hasMinorsSwitch", "minorsDetails", ["minors", "fullNameChildConsent", "dateChildConsent"]);
+    toggleDetailsOnSwitch("hasAdditionalAdultsSwitch", "additionalAdultsDetails");
+
+    const MAX_ADDITIONAL_ADULT_EMAILS = 5;
+    const additionalAdultsSwitch = document.getElementById("hasAdditionalAdultsSwitch");
+    const additionalAdultEmailList = document.getElementById("additionalAdultEmailList");
+    const addEmailBtn = document.getElementById("addEmailBtn");
+
+    function syncAdditionalAdultEmailRows() {
+      const rows = additionalAdultEmailList.querySelectorAll(".additional-adult-email-row");
+      const isRequired = additionalAdultsSwitch.checked;
+      rows.forEach((row) => {
+        row.querySelector(".additional-adult-email").required = isRequired;
+        row.querySelector(".remove-email-btn").disabled = rows.length <= 1;
+      });
+      addEmailBtn.disabled = rows.length >= MAX_ADDITIONAL_ADULT_EMAILS;
+    }
+
+    function addEmailRow() {
+      if (additionalAdultEmailList.querySelectorAll(".additional-adult-email-row").length >= MAX_ADDITIONAL_ADULT_EMAILS) return;
+      const row = document.createElement("div");
+      row.className = "additional-adult-email-row";
+      row.innerHTML = `
+        <input type="email" class="additional-adult-email" placeholder="adult@example.com">
+        <button type="button" class="email-row-btn remove-email-btn">−</button>
+      `;
+      additionalAdultEmailList.appendChild(row);
+      syncAdditionalAdultEmailRows();
+    }
+
+    addEmailBtn.addEventListener("click", addEmailRow);
+
+    additionalAdultEmailList.addEventListener("click", (e) => {
+      if (!e.target.classList.contains("remove-email-btn")) return;
+      if (additionalAdultEmailList.querySelectorAll(".additional-adult-email-row").length <= 1) return;
+      e.target.closest(".additional-adult-email-row").remove();
+      syncAdditionalAdultEmailRows();
+    });
+
+    additionalAdultsSwitch.addEventListener("change", syncAdditionalAdultEmailRows);
+    syncAdditionalAdultEmailRows();
 
     const MAX_DIM = 1600;     // adjust (1200–2000 are common)
     const JPEG_Q  = 0.75;     // 0.6–0.85 typical sweet spot
@@ -619,6 +721,11 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
 
         document.getElementById("fileName").value = newName;
         document.getElementById("mimeType").value = mimeType;
+
+        const additionalEmails = Array.from(document.querySelectorAll(".additional-adult-email"))
+          .map((input) => input.value.trim())
+          .filter(Boolean);
+        document.getElementById("additionalEmailAdult1Hidden").value = additionalEmails.join(", ");
 
         msg.textContent = "Submitting...";
         form.submit(); // triggers SSJS to record the entry
