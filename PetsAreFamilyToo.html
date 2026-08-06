@@ -55,6 +55,10 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
       resultOk = true;
       resultMsg = "Upload successful!";
 
+      if(!minors) {
+        var dateChildConsent = ""
+      };
+
       Platform.Function.InsertData(DE,["contact_id","lease_id","fileName", "story", "fullName", "signedDate",
       "minors", "fullNameChildConsent", "dateChildConsent", "AdditionalEmailAdult1"
       ],
