@@ -93,6 +93,22 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
         font-size: 16px;
       }
 
+      .page-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1;
+        background-image: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.75)), url("https://image.sfdc.msrenewal.com/lib/fe3b11717164047e771673/m/1/0d2b0c45-c07f-4ef0-86e9-69d90d8f5a50.jpg");
+        background-repeat: no-repeat, no-repeat;
+        background-position: center, center;
+        background-size: auto, cover;
+      }
+
+      .logo-bar {
+        background-color: #ffffff;
+      }
 
       .btn:focus,
       .btn:active,
@@ -370,6 +386,8 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
   </head>
   <body  >
 
+    <div class="page-bg"></div>
+
     <!-- Submission Spinner -->
     <div class="slds-spinner_container" id="submitSpinner">
       <div role="status" class="slds-spinner slds-spinner_large">
@@ -379,23 +397,11 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
       </div>
     </div>
 
-    <!-- Loading Bar -->
-    <div class="container-fluid">
-      <div class="row">
-        <div class="col-12">
-          <div class="progress">
-            <div class="progress-bar" role="progressbar" style="width: 100%; background-color: #00487a !important" 
-            aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
-          </div>      
-       </div>
-      </div>
-    </div>
-     <!--End of Loading Bar -->
 
     <!-- Header -->
-    <div class="container-fluid">
+    <div class="container-fluid logo-bar">
         <div class="row d-flex justify-content-center">
-          <div class="col-12 text-center p-4 mb-4 ">
+          <div class="col-12 text-center pt-2 mb-4">
               <img class="logo" src="https://image.sfdc.msrenewal.com/lib/fe3b11717164047e771673/m/1/df563624-015b-4b07-aab0-e4c85e3b3219.png" alt="MSR" >
           </div>
           <div>
@@ -406,9 +412,9 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
 
     %%[ IF @Submit != 'true' THEN ]%%
     <!-- Upload Image Form -->
-    <div class="container">
-      <div class="row d-flex justify-content-center">
-          <div class="col-11 col-md-8 white-container mb-4" >
+    <div class="container pt-4">
+      <div class="row d-flex justify-content-center pt-4">
+          <div class="col-11 col-md-7 white-container  mb-0" >
             <h3>Pets Are Family Too 🐾</h3>      
 
             <form id="uploadForm" method="post" >
@@ -562,7 +568,7 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
         
     <div class="container">
       <div class="row d-flex justify-content-center">
-          <div class="col-11 col-md-8 white-container mb-4" >
+          <div class="col-11 col-md-7 white-container mb-4" >
             <h3>%%=v(@tymessage)=%%</h3> 
             <p style="text-align:center;padding-top:0px;">
              %%=v(@tymessageContent)=%%
