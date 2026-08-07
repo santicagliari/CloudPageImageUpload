@@ -754,6 +754,12 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
       return outDataUrl;
     }
 
+    const LAST_SUBMISSION_KEY = "petsAreFamilyToo_lastSubmission";
+
+    function computeSubmissionFingerprint(file, story) {
+      return `${file.name}|${file.size}|${file.lastModified}|${story.trim()}`;
+    }
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -767,6 +773,13 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
 
       if (!isImage && !isVideo) {
         msg.textContent = "Please upload a JPG/JPEG, PNG, MP4, or MOV.";
+        return;
+      }
+
+      const storyValue = document.querySelector('[name="story"]')?.value || "";
+      const fingerprint = computeSubmissionFingerprint(f, storyValue);
+      if (fingerprint === sessionStorage.getItem(LAST_SUBMISSION_KEY)) {
+        msg.textContent = "You've already submitted this exact photo/video and story. Choose a different file or update your story to submit again.";
         return;
       }
 
@@ -814,6 +827,8 @@ SET @ContactName = Lookup('ENT.CRM_Contact','Name','Contact_Id', @Contact_Id)
           .map((input) => input.value.trim())
           .filter(Boolean);
         document.getElementById("additionalEmailAdult1Hidden").value = additionalEmails.join(", ");
+
+        sessionStorage.setItem(LAST_SUBMISSION_KEY, fingerprint);
 
         msg.textContent = "Submitting...";
         form.submit(); // triggers SSJS to record the entry
